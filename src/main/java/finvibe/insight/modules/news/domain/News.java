@@ -1,5 +1,6 @@
 package finvibe.insight.modules.news.domain;
 
+import finvibe.insight.shared.domain.TimeStampedBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,13 +12,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class News {
+public class News extends TimeStampedBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
