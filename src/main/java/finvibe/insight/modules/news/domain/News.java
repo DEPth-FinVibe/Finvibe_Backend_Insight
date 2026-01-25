@@ -36,11 +36,13 @@ public class News extends TimeStampedBaseEntity {
     @Enumerated(EnumType.STRING)
     private EconomicSignal economicSignal;
 
-    public static News create(String title, String content, String category, EconomicSignal economicSignal) {
+    public static News create(String title, String content, String category, String analysis,
+            EconomicSignal economicSignal) {
         return News.builder()
                 .title(title)
                 .content(content)
                 .category(category)
+                .analysis(analysis)
                 .economicSignal(economicSignal)
                 .build();
     }

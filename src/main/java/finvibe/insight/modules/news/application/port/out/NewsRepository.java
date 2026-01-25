@@ -1,0 +1,14 @@
+package finvibe.insight.modules.news.application.port.out;
+
+import finvibe.insight.modules.news.domain.News;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface NewsRepository {
+    News save(News news);
+
+    List<News> findAll();
+
+    Optional<News> findById(Long id);
+}
