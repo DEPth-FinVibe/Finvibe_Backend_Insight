@@ -4,6 +4,7 @@ import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.modules.news.application.port.out.NewsSummarizer;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
 import finvibe.insight.modules.news.domain.News;
+import finvibe.insight.modules.news.dto.NewsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
