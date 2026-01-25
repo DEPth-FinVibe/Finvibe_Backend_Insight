@@ -10,7 +10,9 @@ import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsComment;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.NewsCommentLike;
+import finvibe.insight.modules.news.domain.error.NewsErrorCode;
 import finvibe.insight.modules.news.dto.NewsDto;
+import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +70,7 @@ public class NewsService {
      */
     public NewsDto.DetailResponse findNewsById(Long id) {
         News news = newsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뉴스입니다. id=" + id));
+                .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
 
         long likeCount = newsLikeRepository.countByNewsId(id);
         long commentCount = newsCommentRepository.countByNewsId(id);
@@ -95,7 +97,7 @@ public class NewsService {
     @Transactional
     public NewsDto.CommentResponse addComment(Long newsId, UUID userId, String content) {
         News news = newsRepository.findById(newsId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뉴스입니다. id=" + newsId));
+                .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
 
         NewsComment comment = NewsComment.create(news, userId, content);
         NewsComment saved = newsCommentRepository.save(comment);
@@ -109,7 +111,7 @@ public class NewsService {
     @Transactional
     public NewsDto.CommentResponse addReply(Long parentCommentId, UUID userId, String content) {
         NewsComment parent = newsCommentRepository.findById(parentCommentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다. id=" + parentCommentId));
+                .orElseThrow(() -> new DomainException(NewsErrorCode.COMMENT_NOT_FOUND));
 
         NewsComment reply = NewsComment.createReply(parent.getNews(), parent, userId, content);
         NewsComment saved = newsCommentRepository.save(reply);
@@ -127,7 +129,7 @@ public class NewsService {
                         newsLikeRepository::delete,
                         () -> {
                             News news = newsRepository.findById(newsId)
-                                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뉴스입니다. id=" + newsId));
+                                    .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
                             newsLikeRepository.save(NewsLike.create(news, userId));
                         });
     }
@@ -142,7 +144,7 @@ public class NewsService {
                         newsCommentLikeRepository::delete,
                         () -> {
                             NewsComment comment = newsCommentRepository.findById(commentId)
-                                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다. id=" + commentId));
+                                    .orElseThrow(() -> new DomainException(NewsErrorCode.COMMENT_NOT_FOUND));
                             newsCommentLikeRepository.save(NewsCommentLike.create(comment, userId));
                         });
     }
