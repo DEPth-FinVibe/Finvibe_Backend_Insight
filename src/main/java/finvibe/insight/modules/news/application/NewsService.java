@@ -5,8 +5,11 @@ import finvibe.insight.modules.news.application.port.out.NewsSummarizer;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
 import finvibe.insight.modules.news.application.port.out.NewsCommentRepository;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
+import finvibe.insight.modules.news.application.port.out.NewsCommentLikeRepository;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsComment;
+import finvibe.insight.modules.news.domain.NewsLike;
+import finvibe.insight.modules.news.domain.NewsCommentLike;
 import finvibe.insight.modules.news.dto.NewsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class NewsService {
     private final NewsRepository newsRepository;
     private final NewsCommentRepository newsCommentRepository;
     private final NewsLikeRepository newsLikeRepository;
+    private final NewsCommentLikeRepository newsCommentLikeRepository;
     private final NewsCrawler newsCrawler;
     private final NewsSummarizer newsSummarizer;
 
@@ -82,6 +87,64 @@ public class NewsService {
 
         // 대댓글들도 각각의 하위 대댓글을 가질 수 있으므로 전체 목록에 대해 계층 구조 변환 수행
         return convertToHierarchicalComments(replies);
+    }
+
+    /**
+     * 뉴스에 댓글을 작성합니다.
+     */
+    @Transactional
+    public NewsDto.CommentResponse addComment(Long newsId, UUID userId, String content) {
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뉴스입니다. id=" + newsId));
+
+        NewsComment comment = NewsComment.create(news, userId, content);
+        NewsComment saved = newsCommentRepository.save(comment);
+
+        return new NewsDto.CommentResponse(saved, new ArrayList<>());
+    }
+
+    /**
+     * 댓글에 대댓글을 작성합니다.
+     */
+    @Transactional
+    public NewsDto.CommentResponse addReply(Long parentCommentId, UUID userId, String content) {
+        NewsComment parent = newsCommentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다. id=" + parentCommentId));
+
+        NewsComment reply = NewsComment.createReply(parent.getNews(), parent, userId, content);
+        NewsComment saved = newsCommentRepository.save(reply);
+
+        return new NewsDto.CommentResponse(saved, new ArrayList<>());
+    }
+
+    /**
+     * 뉴스 좋아요를 토글합니다.
+     */
+    @Transactional
+    public void toggleNewsLike(Long newsId, UUID userId) {
+        newsLikeRepository.findByNewsIdAndUserId(newsId, userId)
+                .ifPresentOrElse(
+                        newsLikeRepository::delete,
+                        () -> {
+                            News news = newsRepository.findById(newsId)
+                                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뉴스입니다. id=" + newsId));
+                            newsLikeRepository.save(NewsLike.create(news, userId));
+                        });
+    }
+
+    /**
+     * 댓글 좋아요를 토글합니다.
+     */
+    @Transactional
+    public void toggleCommentLike(Long commentId, UUID userId) {
+        newsCommentLikeRepository.findByCommentIdAndUserId(commentId, userId)
+                .ifPresentOrElse(
+                        newsCommentLikeRepository::delete,
+                        () -> {
+                            NewsComment comment = newsCommentRepository.findById(commentId)
+                                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다. id=" + commentId));
+                            newsCommentLikeRepository.save(NewsCommentLike.create(comment, userId));
+                        });
     }
 
     private List<NewsDto.CommentResponse> convertToHierarchicalComments(List<NewsComment> comments) {
