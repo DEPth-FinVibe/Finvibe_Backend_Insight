@@ -9,6 +9,4 @@ public interface NewsQueryUseCase {
     List<NewsDto.Response> findAllNewsSummary();
 
     NewsDto.DetailResponse findNewsById(Long id);
-
-    List<DiscussionDto.CommentResponse> findCommentsByDiscussionId(Long discussionId);
 }

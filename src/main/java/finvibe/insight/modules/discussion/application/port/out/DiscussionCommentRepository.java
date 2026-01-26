@@ -1,6 +1,6 @@
-package finvibe.insight.modules.news.application.port.out;
+package finvibe.insight.modules.discussion.application.port.out;
 
-import finvibe.insight.modules.news.domain.DiscussionComment;
+import finvibe.insight.modules.discussion.domain.DiscussionComment;
 
 import java.util.List;
 import java.util.Optional;
