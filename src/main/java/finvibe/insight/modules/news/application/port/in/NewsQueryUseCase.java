@@ -10,5 +10,5 @@ public interface NewsQueryUseCase {
 
     NewsDto.DetailResponse findNewsById(Long id);
 
-    List<DiscussionDto.Response> findRepliesByCommentId(Long commentId); // 기존 findRepliesByCommentId 기능 유지
+    List<DiscussionDto.CommentResponse> findCommentsByDiscussionId(Long discussionId);
 }

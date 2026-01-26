@@ -50,12 +50,10 @@ public class NewsQueryService implements NewsQueryUseCase {
     }
 
     @Override
-    public List<DiscussionDto.Response> findRepliesByCommentId(Long commentId) {
-        // 기존 비즈니스 로직: 특정 부모 댓글(여기선 토론의 댓글 개념이나 논리적 유사성 유지) 하위 조회
-        // 현재 2단계 구조에서는 '특정 토론의 댓글 목록' 조회가 주를 이름.
-        // 유스케이스 정의에 따라 특정 토론 하위 전체를 반환하거나 필요 시 로직 조정.
-        // 우선 기존 인터페이스 모양 유지 (필요 시 DiscussionComment 관련 로직으로 구현 가능)
-        return List.of();
+    public List<DiscussionDto.CommentResponse> findCommentsByDiscussionId(Long discussionId) {
+        return discussionCommentRepository.findAllByDiscussionIdOrderByCreatedAtAsc(discussionId).stream()
+                .map(DiscussionDto.CommentResponse::new)
+                .toList();
     }
 
     private DiscussionDto.Response mapToDiscussionResponse(Discussion discussion) {
