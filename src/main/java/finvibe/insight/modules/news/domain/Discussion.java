@@ -1,6 +1,7 @@
 package finvibe.insight.modules.news.domain;
 
 import finvibe.insight.shared.domain.TimeStampedBaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,40 +10,54 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "news_comment_like", uniqueConstraints = @UniqueConstraint(name = "uk_news_comment_like_comment_user", columnNames = {
-        "news_comment_id", "user_id" }))
+@Table(name = "discussion")
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class NewsCommentLike extends TimeStampedBaseEntity {
+public class Discussion extends TimeStampedBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "news_comment_id", nullable = false)
-    private NewsComment comment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "news_id")
+    private News news;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    public static NewsCommentLike create(NewsComment comment, UUID userId) {
-        return NewsCommentLike.builder()
-                .comment(comment)
+    @Column(nullable = false, length = 2000)
+    private String content;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "discussion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DiscussionComment> comments = new ArrayList<>();
+
+    public static Discussion create(News news, UUID userId, String content) {
+        return Discussion.builder()
+                .news(news)
                 .userId(userId)
+                .content(content)
                 .build();
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

@@ -1,16 +1,9 @@
 package finvibe.insight.modules.news.application;
 
-import finvibe.insight.modules.news.application.port.out.NewsCrawler;
-import finvibe.insight.modules.news.application.port.out.NewsSummarizer;
-import finvibe.insight.modules.news.application.port.out.NewsRepository;
-import finvibe.insight.modules.news.application.port.out.NewsCommentRepository;
-import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
-import finvibe.insight.modules.news.application.port.out.NewsCommentLikeRepository;
-import finvibe.insight.modules.news.domain.News;
-import finvibe.insight.modules.news.domain.NewsComment;
-import finvibe.insight.modules.news.domain.NewsLike;
-import finvibe.insight.modules.news.domain.NewsCommentLike;
+import finvibe.insight.modules.news.application.port.out.*;
+import finvibe.insight.modules.news.domain.*;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
+import finvibe.insight.modules.news.dto.DiscussionDto;
 import finvibe.insight.modules.news.dto.NewsDto;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -29,9 +20,10 @@ import java.util.UUID;
 public class NewsService {
 
     private final NewsRepository newsRepository;
-    private final NewsCommentRepository newsCommentRepository;
+    private final DiscussionRepository discussionRepository;
+    private final DiscussionCommentRepository discussionCommentRepository;
     private final NewsLikeRepository newsLikeRepository;
-    private final NewsCommentLikeRepository newsCommentLikeRepository;
+    private final DiscussionLikeRepository discussionLikeRepository;
     private final NewsCrawler newsCrawler;
     private final NewsSummarizer newsSummarizer;
 
@@ -66,57 +58,52 @@ public class NewsService {
     }
 
     /**
-     * 특정 뉴스를 상세 조회합니다 (좋아요, 댓글 목록 포함).
+     * 특정 뉴스를 상세 조회합니다 (좋아요, 토론 목록 포함).
      */
     public NewsDto.DetailResponse findNewsById(Long id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
 
         long likeCount = newsLikeRepository.countByNewsId(id);
-        long commentCount = newsCommentRepository.countByNewsId(id);
-        List<NewsComment> comments = newsCommentRepository.findAllByNewsIdOrderByCreatedAtAsc(id);
+        long discussionCount = discussionRepository.countByNewsId(id);
+        List<Discussion> discussions = discussionRepository.findAllByNewsIdOrderByCreatedAtAsc(id);
 
-        List<NewsDto.CommentResponse> commentResponses = convertToHierarchicalComments(comments);
+        List<DiscussionDto.Response> discussionResponses = discussions.stream()
+                .map(this::mapToDiscussionResponse)
+                .toList();
 
-        return new NewsDto.DetailResponse(news, likeCount, commentCount, commentResponses);
+        return new NewsDto.DetailResponse(news, likeCount, discussionCount, discussionResponses);
     }
 
     /**
-     * 특정 댓글의 대댓글 목록을 조회합니다.
-     */
-    public List<NewsDto.CommentResponse> findRepliesByCommentId(Long commentId) {
-        List<NewsComment> replies = newsCommentRepository.findAllByParentIdOrderByCreatedAtAsc(commentId);
-
-        // 대댓글들도 각각의 하위 대댓글을 가질 수 있으므로 전체 목록에 대해 계층 구조 변환 수행
-        return convertToHierarchicalComments(replies);
-    }
-
-    /**
-     * 뉴스에 댓글을 작성합니다.
+     * 토론을 작성합니다 (뉴스 연관 관계는 선택적).
      */
     @Transactional
-    public NewsDto.CommentResponse addComment(Long newsId, UUID userId, String content) {
-        News news = newsRepository.findById(newsId)
-                .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
+    public DiscussionDto.Response addDiscussion(Long newsId, UUID userId, String content) {
+        News news = null;
+        if (newsId != null) {
+            news = newsRepository.findById(newsId)
+                    .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
+        }
 
-        NewsComment comment = NewsComment.create(news, userId, content);
-        NewsComment saved = newsCommentRepository.save(comment);
+        Discussion discussion = Discussion.create(news, userId, content);
+        Discussion saved = discussionRepository.save(discussion);
 
-        return new NewsDto.CommentResponse(saved, new ArrayList<>());
+        return mapToDiscussionResponse(saved);
     }
 
     /**
-     * 댓글에 대댓글을 작성합니다.
+     * 토론에 댓글을 작성합니다.
      */
     @Transactional
-    public NewsDto.CommentResponse addReply(Long parentCommentId, UUID userId, String content) {
-        NewsComment parent = newsCommentRepository.findById(parentCommentId)
-                .orElseThrow(() -> new DomainException(NewsErrorCode.COMMENT_NOT_FOUND));
+    public DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content) {
+        Discussion discussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DomainException(NewsErrorCode.DISCUSSION_NOT_FOUND));
 
-        NewsComment reply = NewsComment.createReply(parent.getNews(), parent, userId, content);
-        NewsComment saved = newsCommentRepository.save(reply);
+        DiscussionComment comment = DiscussionComment.create(discussion, userId, content);
+        DiscussionComment saved = discussionCommentRepository.save(comment);
 
-        return new NewsDto.CommentResponse(saved, new ArrayList<>());
+        return new DiscussionDto.CommentResponse(saved);
     }
 
     /**
@@ -135,42 +122,29 @@ public class NewsService {
     }
 
     /**
-     * 댓글 좋아요를 토글합니다.
+     * 토론 좋아요를 토글합니다.
      */
     @Transactional
-    public void toggleCommentLike(Long commentId, UUID userId) {
-        newsCommentLikeRepository.findByCommentIdAndUserId(commentId, userId)
+    public void toggleDiscussionLike(Long discussionId, UUID userId) {
+        discussionLikeRepository.findByDiscussionIdAndUserId(discussionId, userId)
                 .ifPresentOrElse(
-                        newsCommentLikeRepository::delete,
+                        discussionLikeRepository::delete,
                         () -> {
-                            NewsComment comment = newsCommentRepository.findById(commentId)
-                                    .orElseThrow(() -> new DomainException(NewsErrorCode.COMMENT_NOT_FOUND));
-                            newsCommentLikeRepository.save(NewsCommentLike.create(comment, userId));
+                            Discussion discussion = discussionRepository.findById(discussionId)
+                                    .orElseThrow(() -> new DomainException(NewsErrorCode.DISCUSSION_NOT_FOUND));
+                            discussionLikeRepository.save(DiscussionLike.create(discussion, userId));
                         });
     }
 
-    private List<NewsDto.CommentResponse> convertToHierarchicalComments(List<NewsComment> comments) {
-        Map<Long, NewsDto.CommentResponse> responseMap = new HashMap<>();
-        List<NewsDto.CommentResponse> roots = new ArrayList<>();
+    private DiscussionDto.Response mapToDiscussionResponse(Discussion discussion) {
+        long likeCount = discussionLikeRepository.countByDiscussionId(discussion.getId());
+        List<DiscussionComment> comments = discussionCommentRepository
+                .findAllByDiscussionIdOrderByCreatedAtAsc(discussion.getId());
 
-        // 1. 모든 댓글을 DTO로 변환하여 맵에 저장 (자식 목록은 일단 비어있음)
-        for (NewsComment comment : comments) {
-            responseMap.put(comment.getId(), new NewsDto.CommentResponse(comment, new ArrayList<>()));
-        }
+        List<DiscussionDto.CommentResponse> commentDtos = comments.stream()
+                .map(DiscussionDto.CommentResponse::new)
+                .toList();
 
-        // 2. 부모-자식 관계 연결
-        for (NewsComment comment : comments) {
-            NewsDto.CommentResponse currentDto = responseMap.get(comment.getId());
-            if (comment.getParent() == null || !responseMap.containsKey(comment.getParent().getId())) {
-                // 부모가 없거나, 부모가 현재 조회 대상 목록에 없는 경우 (현재 context에서의 root)
-                roots.add(currentDto);
-            } else {
-                // 부모의 DTO를 찾아 자식 목록에 추가
-                NewsDto.CommentResponse parentDto = responseMap.get(comment.getParent().getId());
-                parentDto.getChildren().add(currentDto);
-            }
-        }
-
-        return roots;
+        return new DiscussionDto.Response(discussion, likeCount, commentDtos);
     }
 }
