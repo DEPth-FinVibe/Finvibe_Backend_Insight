@@ -1,5 +1,6 @@
 package finvibe.insight.modules.news.dto;
 
+import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.News;
 import lombok.AccessLevel;
