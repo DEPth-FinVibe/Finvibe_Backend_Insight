@@ -1,7 +1,7 @@
-package finvibe.insight.modules.news.dto;
+package finvibe.insight.modules.discussion.dto;
 
-import finvibe.insight.modules.news.domain.Discussion;
-import finvibe.insight.modules.news.domain.DiscussionComment;
+import finvibe.insight.modules.discussion.domain.Discussion;
+import finvibe.insight.modules.discussion.domain.DiscussionComment;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

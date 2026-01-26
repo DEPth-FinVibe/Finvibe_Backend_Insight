@@ -1,4 +1,4 @@
-package finvibe.insight.modules.news.domain;
+package finvibe.insight.modules.discussion.domain;
 
 import finvibe.insight.shared.domain.TimeStampedBaseEntity;
 import jakarta.persistence.Column;

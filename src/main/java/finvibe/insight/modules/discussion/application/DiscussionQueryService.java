@@ -1,0 +1,55 @@
+package finvibe.insight.modules.discussion.application;
+
+import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentRepository;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionRepository;
+import finvibe.insight.modules.discussion.domain.Discussion;
+import finvibe.insight.modules.discussion.domain.DiscussionComment;
+import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class DiscussionQueryService implements DiscussionQueryUseCase {
+
+    private final DiscussionRepository discussionRepository;
+    private final DiscussionCommentRepository discussionCommentRepository;
+    private final DiscussionLikeRepository discussionLikeRepository;
+
+    @Override
+    public long countByNewsId(Long newsId) {
+        return discussionRepository.countByNewsId(newsId);
+    }
+
+    @Override
+    public List<DiscussionDto.Response> findAllByNewsId(Long newsId) {
+        return discussionRepository.findAllByNewsIdOrderByCreatedAtAsc(newsId).stream()
+                .map(this::mapToDiscussionResponse)
+                .toList();
+    }
+
+    @Override
+    public List<DiscussionDto.CommentResponse> findCommentsByDiscussionId(Long discussionId) {
+        return discussionCommentRepository.findAllByDiscussionIdOrderByCreatedAtAsc(discussionId).stream()
+                .map(DiscussionDto.CommentResponse::new)
+                .toList();
+    }
+
+    private DiscussionDto.Response mapToDiscussionResponse(Discussion discussion) {
+        long likeCount = discussionLikeRepository.countByDiscussionId(discussion.getId());
+        List<DiscussionComment> comments = discussionCommentRepository
+                .findAllByDiscussionIdOrderByCreatedAtAsc(discussion.getId());
+
+        List<DiscussionDto.CommentResponse> commentDtos = comments.stream()
+                .map(DiscussionDto.CommentResponse::new)
+                .toList();
+
+        return new DiscussionDto.Response(discussion, likeCount, commentDtos);
+    }
+}
