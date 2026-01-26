@@ -1,16 +1,12 @@
 package finvibe.insight.modules.discussion.domain;
 
-import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.shared.domain.TimeStampedBaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -36,9 +32,8 @@ public class Discussion extends TimeStampedBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "news_id")
-    private News news;
+    @Column(name = "news_id")
+    private Long newsId;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
@@ -50,9 +45,9 @@ public class Discussion extends TimeStampedBaseEntity {
     @OneToMany(mappedBy = "discussion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiscussionComment> comments = new ArrayList<>();
 
-    public static Discussion create(News news, UUID userId, String content) {
+    public static Discussion create(Long newsId, UUID userId, String content) {
         return Discussion.builder()
-                .news(news)
+                .newsId(newsId)
                 .userId(userId)
                 .content(content)
                 .build();

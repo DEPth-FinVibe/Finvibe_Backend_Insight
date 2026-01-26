@@ -25,6 +25,9 @@ public class News extends TimeStampedBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
+    private long discussionCount = 0;
+
     private String title;
 
     private String content;
@@ -53,5 +56,15 @@ public class News extends TimeStampedBaseEntity {
 
     public void changeSignal(EconomicSignal economicSignal) {
         this.economicSignal = economicSignal;
+    }
+
+    public void incrementDiscussionCount() {
+        this.discussionCount++;
+    }
+
+    public void decrementDiscussionCount() {
+        if (this.discussionCount > 0) {
+            this.discussionCount--;
+        }
     }
 }

@@ -27,7 +27,7 @@ public class DiscussionDto {
             this.id = discussion.getId();
             this.userId = discussion.getUserId();
             this.content = discussion.getContent();
-            this.newsId = discussion.getNews() != null ? discussion.getNews().getId() : null;
+            this.newsId = discussion.getNewsId();
             this.likeCount = likeCount;
             this.comments = comments;
             this.createdAt = discussion.getCreatedAt();

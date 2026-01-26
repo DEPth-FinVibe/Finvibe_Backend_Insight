@@ -1,7 +1,5 @@
 package finvibe.insight.modules.news.application;
 
-import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
-import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.news.application.port.in.NewsQueryUseCase;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
@@ -13,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,7 +21,6 @@ public class NewsQueryService implements NewsQueryUseCase {
 
         private final NewsRepository newsRepository;
         private final NewsLikeRepository newsLikeRepository;
-        private final DiscussionQueryUseCase discussionQueryUseCase;
 
         @Override
         public List<NewsDto.Response> findAllNewsSummary() {
@@ -37,9 +35,8 @@ public class NewsQueryService implements NewsQueryUseCase {
                                 .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
 
                 long likeCount = newsLikeRepository.countByNewsId(id);
-                long discussionCount = discussionQueryUseCase.countByNewsId(id);
-                List<DiscussionDto.Response> discussions = discussionQueryUseCase.findAllByNewsId(id);
 
-                return new NewsDto.DetailResponse(news, likeCount, discussionCount, discussions);
+                // Kafka를 통해 동기화된 로컬 discussionCount 사용
+                return new NewsDto.DetailResponse(news, likeCount, news.getDiscussionCount(), new ArrayList<>());
         }
 }
