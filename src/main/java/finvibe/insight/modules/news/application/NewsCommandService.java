@@ -1,23 +1,22 @@
 package finvibe.insight.modules.news.application;
 
+import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
 import finvibe.insight.modules.news.application.port.out.*;
 import finvibe.insight.modules.news.domain.*;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
 import finvibe.insight.modules.news.dto.DiscussionDto;
-import finvibe.insight.modules.news.dto.NewsDto;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class NewsService {
+@Transactional
+public class NewsCommandService implements NewsCommandUseCase {
 
     private final NewsRepository newsRepository;
     private final DiscussionRepository discussionRepository;
@@ -27,10 +26,7 @@ public class NewsService {
     private final NewsCrawler newsCrawler;
     private final NewsSummarizer newsSummarizer;
 
-    /**
-     * 최신 뉴스를 수집하여 분석 후 저장합니다.
-     */
-    @Transactional
+    @Override
     public void syncLatestNews() {
         List<NewsCrawler.RawNewsData> rawDataList = newsCrawler.fetchLatestRawNews();
 
@@ -48,37 +44,7 @@ public class NewsService {
         }
     }
 
-    /**
-     * 뉴스 전체 목록을 요약 형태로 조회합니다.
-     */
-    public List<NewsDto.Response> findAllNewsSummary() {
-        return newsRepository.findAll().stream()
-                .map(NewsDto.Response::new)
-                .toList();
-    }
-
-    /**
-     * 특정 뉴스를 상세 조회합니다 (좋아요, 토론 목록 포함).
-     */
-    public NewsDto.DetailResponse findNewsById(Long id) {
-        News news = newsRepository.findById(id)
-                .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
-
-        long likeCount = newsLikeRepository.countByNewsId(id);
-        long discussionCount = discussionRepository.countByNewsId(id);
-        List<Discussion> discussions = discussionRepository.findAllByNewsIdOrderByCreatedAtAsc(id);
-
-        List<DiscussionDto.Response> discussionResponses = discussions.stream()
-                .map(this::mapToDiscussionResponse)
-                .toList();
-
-        return new NewsDto.DetailResponse(news, likeCount, discussionCount, discussionResponses);
-    }
-
-    /**
-     * 토론을 작성합니다 (뉴스 연관 관계는 선택적).
-     */
-    @Transactional
+    @Override
     public DiscussionDto.Response addDiscussion(Long newsId, UUID userId, String content) {
         News news = null;
         if (newsId != null) {
@@ -92,10 +58,7 @@ public class NewsService {
         return mapToDiscussionResponse(saved);
     }
 
-    /**
-     * 토론에 댓글을 작성합니다.
-     */
-    @Transactional
+    @Override
     public DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DomainException(NewsErrorCode.DISCUSSION_NOT_FOUND));
@@ -106,10 +69,7 @@ public class NewsService {
         return new DiscussionDto.CommentResponse(saved);
     }
 
-    /**
-     * 뉴스 좋아요를 토글합니다.
-     */
-    @Transactional
+    @Override
     public void toggleNewsLike(Long newsId, UUID userId) {
         newsLikeRepository.findByNewsIdAndUserId(newsId, userId)
                 .ifPresentOrElse(
@@ -121,10 +81,7 @@ public class NewsService {
                         });
     }
 
-    /**
-     * 토론 좋아요를 토글합니다.
-     */
-    @Transactional
+    @Override
     public void toggleDiscussionLike(Long discussionId, UUID userId) {
         discussionLikeRepository.findByDiscussionIdAndUserId(discussionId, userId)
                 .ifPresentOrElse(
