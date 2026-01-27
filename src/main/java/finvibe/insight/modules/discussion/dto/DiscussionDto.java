@@ -20,6 +20,7 @@ public class DiscussionDto {
         private final String content;
         private final Long newsId;
         private final long likeCount;
+        private final boolean isEdited;
         private final List<CommentResponse> comments;
         private final LocalDateTime createdAt;
 
@@ -29,6 +30,7 @@ public class DiscussionDto {
             this.content = discussion.getContent();
             this.newsId = discussion.getNewsId();
             this.likeCount = likeCount;
+            this.isEdited = discussion.isEdited();
             this.comments = comments;
             this.createdAt = discussion.getCreatedAt();
         }
