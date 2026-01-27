@@ -3,6 +3,7 @@ package finvibe.insight.modules.news.dto;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.News;
+import finvibe.insight.modules.news.domain.NewsKeyword;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class NewsDto {
         private final String title;
         private final String category;
         private final EconomicSignal economicSignal;
+        private final NewsKeyword keyword;
         private final LocalDateTime createdAt;
 
         public Response(News news) {
@@ -26,6 +28,7 @@ public class NewsDto {
             this.title = news.getTitle();
             this.category = news.getCategory();
             this.economicSignal = news.getEconomicSignal();
+            this.keyword = news.getKeyword();
             this.createdAt = news.getCreatedAt();
         }
     }
@@ -38,6 +41,7 @@ public class NewsDto {
         private final String analysis;
         private final String category;
         private final EconomicSignal economicSignal;
+        private final NewsKeyword keyword;
         private final long likeCount;
         private final long discussionCount;
         private final List<DiscussionDto.Response> discussions;
@@ -51,6 +55,7 @@ public class NewsDto {
             this.analysis = news.getAnalysis();
             this.category = news.getCategory();
             this.economicSignal = news.getEconomicSignal();
+            this.keyword = news.getKeyword();
             this.likeCount = likeCount;
             this.discussionCount = discussionCount;
             this.discussions = discussions;
