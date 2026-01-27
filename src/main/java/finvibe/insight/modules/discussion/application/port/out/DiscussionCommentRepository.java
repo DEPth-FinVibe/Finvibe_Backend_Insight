@@ -11,4 +11,6 @@ public interface DiscussionCommentRepository {
     DiscussionComment save(DiscussionComment comment);
 
     Optional<DiscussionComment> findById(Long id);
+
+    void delete(DiscussionComment comment);
 }

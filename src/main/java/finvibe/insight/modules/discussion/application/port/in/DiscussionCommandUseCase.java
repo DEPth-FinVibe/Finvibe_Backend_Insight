@@ -11,5 +11,9 @@ public interface DiscussionCommandUseCase {
 
     DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content);
 
+    DiscussionDto.CommentResponse updateComment(Long commentId, UUID userId, String content);
+
+    void deleteComment(Long commentId, UUID userId);
+
     void toggleDiscussionLike(Long discussionId, UUID userId);
 }

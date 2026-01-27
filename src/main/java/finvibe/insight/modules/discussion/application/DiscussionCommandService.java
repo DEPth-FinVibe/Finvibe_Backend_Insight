@@ -70,6 +70,35 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     }
 
     @Override
+    public DiscussionDto.CommentResponse updateComment(Long commentId, UUID userId, String content) {
+        DiscussionComment comment = discussionCommentRepository.findById(commentId)
+                .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
+
+        // 작성자만 수정 가능
+        if (!comment.getUserId().equals(userId)) {
+            throw new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND);
+        }
+
+        comment.updateContent(content);
+        DiscussionComment updated = discussionCommentRepository.save(comment);
+
+        return new DiscussionDto.CommentResponse(updated);
+    }
+
+    @Override
+    public void deleteComment(Long commentId, UUID userId) {
+        DiscussionComment comment = discussionCommentRepository.findById(commentId)
+                .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
+
+        // 작성자만 삭제 가능
+        if (!comment.getUserId().equals(userId)) {
+            throw new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND);
+        }
+
+        discussionCommentRepository.delete(comment);
+    }
+
+    @Override
     public void toggleDiscussionLike(Long discussionId, UUID userId) {
         discussionLikeRepository.findByDiscussionIdAndUserId(discussionId, userId)
                 .ifPresentOrElse(

@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -40,15 +41,21 @@ public class DiscussionComment extends TimeStampedBaseEntity {
     @Column(nullable = false, length = 2000)
     private String content;
 
+    @Builder.Default
+    @Column(name = "is_edited", nullable = false)
+    private boolean isEdited = false;
+
     public static DiscussionComment create(Discussion discussion, UUID userId, String content) {
         return DiscussionComment.builder()
                 .discussion(discussion)
                 .userId(userId)
                 .content(content)
+                .isEdited(false)
                 .build();
     }
 
     public void updateContent(String content) {
         this.content = content;
+        this.isEdited = true;
     }
 }
