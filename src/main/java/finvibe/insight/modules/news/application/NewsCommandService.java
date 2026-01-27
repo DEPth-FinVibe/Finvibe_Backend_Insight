@@ -38,7 +38,8 @@ public class NewsCommandService implements NewsCommandUseCase {
                     rawData.content(),
                     rawData.category(),
                     analysis.summary(),
-                    analysis.signal());
+                    analysis.signal(),
+                    analysis.keyword());
 
             newsRepository.save(news);
         }
