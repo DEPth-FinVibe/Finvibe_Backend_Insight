@@ -43,6 +43,22 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     }
 
     @Override
+    public DiscussionDto.Response updateDiscussion(Long discussionId, UUID userId, String content) {
+        Discussion discussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
+
+        // 작성자만 수정 가능
+        if (!discussion.getUserId().equals(userId)) {
+            throw new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND);
+        }
+
+        discussion.updateContent(content);
+        Discussion updated = discussionRepository.save(discussion);
+
+        return mapToDiscussionResponse(updated);
+    }
+
+    @Override
     public DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));

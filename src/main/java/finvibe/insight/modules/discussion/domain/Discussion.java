@@ -42,6 +42,10 @@ public class Discussion extends TimeStampedBaseEntity {
     private String content;
 
     @Builder.Default
+    @Column(name = "is_edited", nullable = false)
+    private boolean isEdited = false;
+
+    @Builder.Default
     @OneToMany(mappedBy = "discussion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiscussionComment> comments = new ArrayList<>();
 
@@ -50,10 +54,12 @@ public class Discussion extends TimeStampedBaseEntity {
                 .newsId(newsId)
                 .userId(userId)
                 .content(content)
+                .isEdited(false)
                 .build();
     }
 
     public void updateContent(String content) {
         this.content = content;
+        this.isEdited = true;
     }
 }

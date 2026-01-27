@@ -7,6 +7,8 @@ import java.util.UUID;
 public interface DiscussionCommandUseCase {
     DiscussionDto.Response addDiscussion(Long newsId, UUID userId, String content);
 
+    DiscussionDto.Response updateDiscussion(Long discussionId, UUID userId, String content);
+
     DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content);
 
     void toggleDiscussionLike(Long discussionId, UUID userId);
