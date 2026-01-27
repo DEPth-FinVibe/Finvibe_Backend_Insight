@@ -9,6 +9,8 @@ public interface DiscussionCommandUseCase {
 
     DiscussionDto.Response updateDiscussion(Long discussionId, UUID userId, String content);
 
+    void deleteDiscussion(Long discussionId, UUID userId);
+
     DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content);
 
     DiscussionDto.CommentResponse updateComment(Long commentId, UUID userId, String content);

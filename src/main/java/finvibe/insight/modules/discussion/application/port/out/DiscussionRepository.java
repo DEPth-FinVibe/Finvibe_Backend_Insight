@@ -17,4 +17,6 @@ public interface DiscussionRepository {
     Discussion save(Discussion discussion);
 
     Optional<Discussion> findById(Long id);
+
+    void delete(Discussion discussion);
 }
