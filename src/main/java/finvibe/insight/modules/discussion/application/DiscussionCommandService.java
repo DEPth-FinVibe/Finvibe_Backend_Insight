@@ -59,6 +59,20 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     }
 
     @Override
+    public void deleteDiscussion(Long discussionId, UUID userId) {
+        Discussion discussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
+
+        // 작성자만 삭제 가능
+        if (!discussion.getUserId().equals(userId)) {
+            throw new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND);
+        }
+
+        // cascade 설정으로 댓글도 자동 삭제됨
+        discussionRepository.delete(discussion);
+    }
+
+    @Override
     public DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
