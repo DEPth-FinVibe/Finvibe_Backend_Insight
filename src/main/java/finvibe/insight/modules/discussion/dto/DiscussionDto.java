@@ -41,12 +41,14 @@ public class DiscussionDto {
         private final Long id;
         private final UUID userId;
         private final String content;
+        private final boolean isEdited;
         private final LocalDateTime createdAt;
 
         public CommentResponse(DiscussionComment comment) {
             this.id = comment.getId();
             this.userId = comment.getUserId();
             this.content = comment.getContent();
+            this.isEdited = comment.isEdited();
             this.createdAt = comment.getCreatedAt();
         }
     }
