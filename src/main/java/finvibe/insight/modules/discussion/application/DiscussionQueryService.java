@@ -7,10 +7,12 @@ import finvibe.insight.modules.discussion.application.port.out.DiscussionReposit
 import finvibe.insight.modules.discussion.domain.Discussion;
 import finvibe.insight.modules.discussion.domain.DiscussionComment;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -32,6 +34,26 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
         return discussionRepository.findAllByNewsIdOrderByCreatedAtAsc(newsId).stream()
                 .map(this::mapToDiscussionResponse)
                 .toList();
+    }
+
+    @Override
+    public List<DiscussionDto.Response> findAll(DiscussionSortType sortType) {
+        List<Discussion> discussions;
+
+        if (sortType == DiscussionSortType.LATEST) {
+            // 최신순
+            discussions = discussionRepository.findAllOrderByCreatedAtDesc();
+            return discussions.stream()
+                    .map(this::mapToDiscussionResponse)
+                    .toList();
+        } else {
+            // 좋아요순
+            discussions = discussionRepository.findAll();
+            return discussions.stream()
+                    .map(this::mapToDiscussionResponse)
+                    .sorted(Comparator.comparingLong(DiscussionDto.Response::getLikeCount).reversed())
+                    .toList();
+        }
     }
 
     @Override
