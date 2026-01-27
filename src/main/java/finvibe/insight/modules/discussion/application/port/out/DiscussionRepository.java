@@ -10,6 +10,10 @@ public interface DiscussionRepository {
 
     List<Discussion> findAllByNewsIdOrderByCreatedAtAsc(Long newsId);
 
+    List<Discussion> findAllOrderByCreatedAtDesc();
+
+    List<Discussion> findAll();
+
     Discussion save(Discussion discussion);
 
     Optional<Discussion> findById(Long id);
