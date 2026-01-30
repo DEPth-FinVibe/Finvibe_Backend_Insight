@@ -5,5 +5,7 @@ import java.util.UUID;
 public interface NewsCommandUseCase {
     void syncLatestNews();
 
+    void syncAllDiscussionCounts();
+
     void toggleNewsLike(Long newsId, UUID userId);
 }

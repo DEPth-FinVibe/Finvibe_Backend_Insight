@@ -71,4 +71,8 @@ public class News extends TimeStampedBaseEntity {
             this.discussionCount--;
         }
     }
+
+    public void syncDiscussionCount(long count) {
+        this.discussionCount = count;
+    }
 }

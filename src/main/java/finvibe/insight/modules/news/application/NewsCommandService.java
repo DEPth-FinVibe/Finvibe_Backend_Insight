@@ -1,5 +1,6 @@
 package finvibe.insight.modules.news.application;
 
+import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
 import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
 import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
@@ -25,6 +26,7 @@ public class NewsCommandService implements NewsCommandUseCase {
     private final NewsLikeRepository newsLikeRepository;
     private final NewsCrawler newsCrawler;
     private final NewsSummarizer newsSummarizer;
+    private final DiscussionQueryUseCase discussionQueryUseCase;
 
     @Override
     public void syncLatestNews() {
@@ -42,6 +44,20 @@ public class NewsCommandService implements NewsCommandUseCase {
                     analysis.keyword());
 
             newsRepository.save(news);
+        }
+    }
+
+    @Override
+    public void syncAllDiscussionCounts() {
+        List<News> allNews = newsRepository.findAll();
+
+        for (News news : allNews) {
+            long currentCount = discussionQueryUseCase.countByNewsId(news.getId());
+
+            if (news.getDiscussionCount() != currentCount) {
+                news.syncDiscussionCount(currentCount);
+                newsRepository.save(news);
+            }
         }
     }
 
