@@ -28,4 +28,9 @@ public class NewsJpaRepositoryImpl implements NewsRepository {
     public Optional<News> findById(Long id) {
         return newsJpaRepository.findById(id);
     }
+
+    @Override
+    public boolean existsByTitle(String title) {
+        return newsJpaRepository.existsByTitle(title);
+    }
 }

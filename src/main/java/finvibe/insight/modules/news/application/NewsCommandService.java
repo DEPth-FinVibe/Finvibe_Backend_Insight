@@ -33,6 +33,10 @@ public class NewsCommandService implements NewsCommandUseCase {
         List<NewsCrawler.RawNewsData> rawDataList = newsCrawler.fetchLatestRawNews();
 
         for (NewsCrawler.RawNewsData rawData : rawDataList) {
+            if (newsRepository.existsByTitle(rawData.title())) {
+                continue;
+            }
+
             NewsSummarizer.AnalysisResult analysis = newsSummarizer.analyzeAndSummarize(rawData.content());
 
             News news = News.create(
