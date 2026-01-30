@@ -11,4 +11,6 @@ public interface NewsRepository {
     List<News> findAll();
 
     Optional<News> findById(Long id);
+
+    boolean existsByTitle(String title);
 }
