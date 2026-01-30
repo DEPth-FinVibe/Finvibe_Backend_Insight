@@ -2,7 +2,6 @@ package finvibe.insight.modules.discussion.application;
 
 import finvibe.insight.modules.discussion.application.port.in.DiscussionCommandUseCase;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentRepository;
-import finvibe.insight.modules.discussion.application.port.out.DiscussionEventPublisher;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionRepository;
 import finvibe.insight.modules.discussion.domain.Discussion;
@@ -11,7 +10,6 @@ import finvibe.insight.modules.discussion.domain.DiscussionLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.shared.error.DomainException;
-import finvibe.insight.shared.event.DiscussionCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +25,6 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
     private final DiscussionLikeRepository discussionLikeRepository;
-    private final DiscussionEventPublisher discussionEventPublisher;
 
     @Override
     public DiscussionDto.Response addDiscussion(Long newsId, UUID userId, String content) {
@@ -35,9 +32,6 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
         // 여기서는 newsId를 그대로 저장하고 이벤트를 발행하는 것에 집중.
         Discussion discussion = Discussion.create(newsId, userId, content);
         Discussion saved = discussionRepository.save(discussion);
-
-        // 이벤트 발행
-        discussionEventPublisher.publish(new DiscussionCreatedEvent(saved.getId(), newsId));
 
         return mapToDiscussionResponse(saved);
     }
