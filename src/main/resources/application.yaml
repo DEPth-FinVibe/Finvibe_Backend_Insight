@@ -6,3 +6,7 @@ news:
   crawler:
     max-items: 20
     cron: "0 0 12 * * *"
+
+gemini:
+  api-key: "YOUR_GEMINI_API_KEY_HERE" # 여기에 발급받으신 Gemini API 키를 입력하세요.
+  model: gemini-1.5-flash

@@ -34,20 +34,17 @@ public class News extends TimeStampedBaseEntity {
 
     private String analysis;
 
-    private String category;
-
     @Enumerated(EnumType.STRING)
     private EconomicSignal economicSignal;
 
     @Enumerated(EnumType.STRING)
     private NewsKeyword keyword;
 
-    public static News create(String title, String content, String category, String analysis,
+    public static News create(String title, String content, String analysis,
             EconomicSignal economicSignal, NewsKeyword keyword) {
         return News.builder()
                 .title(title)
                 .content(content)
-                .category(category)
                 .analysis(analysis)
                 .economicSignal(economicSignal)
                 .keyword(keyword)
@@ -60,16 +57,6 @@ public class News extends TimeStampedBaseEntity {
 
     public void changeSignal(EconomicSignal economicSignal) {
         this.economicSignal = economicSignal;
-    }
-
-    public void incrementDiscussionCount() {
-        this.discussionCount++;
-    }
-
-    public void decrementDiscussionCount() {
-        if (this.discussionCount > 0) {
-            this.discussionCount--;
-        }
     }
 
     public void syncDiscussionCount(long count) {

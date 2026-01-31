@@ -18,7 +18,6 @@ public class NewsDto {
     public static class Response {
         private final Long id;
         private final String title;
-        private final String category;
         private final EconomicSignal economicSignal;
         private final NewsKeyword keyword;
         private final LocalDateTime createdAt;
@@ -26,7 +25,6 @@ public class NewsDto {
         public Response(News news) {
             this.id = news.getId();
             this.title = news.getTitle();
-            this.category = news.getCategory();
             this.economicSignal = news.getEconomicSignal();
             this.keyword = news.getKeyword();
             this.createdAt = news.getCreatedAt();
@@ -39,7 +37,6 @@ public class NewsDto {
         private final String title;
         private final String content;
         private final String analysis;
-        private final String category;
         private final EconomicSignal economicSignal;
         private final NewsKeyword keyword;
         private final long likeCount;
@@ -53,7 +50,6 @@ public class NewsDto {
             this.title = news.getTitle();
             this.content = news.getContent();
             this.analysis = news.getAnalysis();
-            this.category = news.getCategory();
             this.economicSignal = news.getEconomicSignal();
             this.keyword = news.getKeyword();
             this.likeCount = likeCount;
