@@ -28,6 +28,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.jsoup:jsoup:1.18.1'
+	
+	// LangChain4j
+	implementation 'dev.langchain4j:langchain4j:1.10.0'
+	implementation 'dev.langchain4j:langchain4j-google-ai-gemini:1.10.0'
+	
+	// JSON
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

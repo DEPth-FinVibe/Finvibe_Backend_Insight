@@ -5,6 +5,6 @@ import java.util.List;
 public interface NewsCrawler {
     List<RawNewsData> fetchLatestRawNews();
 
-    record RawNewsData(String title, String content, String category) {
+    record RawNewsData(String title, String content) {
     }
 }

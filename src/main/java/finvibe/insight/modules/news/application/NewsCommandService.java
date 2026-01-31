@@ -37,12 +37,12 @@ public class NewsCommandService implements NewsCommandUseCase {
                 continue;
             }
 
-            NewsSummarizer.AnalysisResult analysis = newsSummarizer.analyzeAndSummarize(rawData.content());
+            String analysisInput = "제목: " + rawData.title() + "\n요약: " + rawData.content();
+            NewsSummarizer.AnalysisResult analysis = newsSummarizer.analyzeAndSummarize(analysisInput);
 
             News news = News.create(
                     rawData.title(),
                     rawData.content(),
-                    rawData.category(),
                     analysis.summary(),
                     analysis.signal(),
                     analysis.keyword());
