@@ -1,12 +1,14 @@
 package finvibe.insight.modules.discussion.application;
 
 import finvibe.insight.modules.discussion.application.port.in.DiscussionCommandUseCase;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentLikeRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionEventPort;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionRepository;
 import finvibe.insight.modules.discussion.domain.Discussion;
 import finvibe.insight.modules.discussion.domain.DiscussionComment;
+import finvibe.insight.modules.discussion.domain.DiscussionCommentLike;
 import finvibe.insight.modules.discussion.domain.DiscussionLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
@@ -31,6 +33,7 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
 
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
+    private final DiscussionCommentLikeRepository discussionCommentLikeRepository;
     private final DiscussionLikeRepository discussionLikeRepository;
     private final DiscussionEventPort discussionEventPort;
 
@@ -132,9 +135,14 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
 
     @Override
     public void toggleCommentLike(Long commentId, UUID userId) {
-        // TODO: 댓글 좋아요 기능 구현 필요 (Repository 추가 등 선행 과제 있음)
-        // 현재는 인터페이스만 맞추기 위해 빈 구현
-        // 사용자 요구사항: "댓글에도 좋아요가 있어"
+        discussionCommentLikeRepository.findByCommentIdAndUserId(commentId, userId)
+                .ifPresentOrElse(
+                        discussionCommentLikeRepository::delete,
+                        () -> {
+                            DiscussionComment comment = discussionCommentRepository.findById(commentId)
+                                    .orElseThrow(() -> new DomainException(DiscussionErrorCode.COMMENT_NOT_FOUND));
+                            discussionCommentLikeRepository.save(DiscussionCommentLike.create(comment, userId));
+                        });
     }
 
     private DiscussionDto.Response mapToDiscussionResponse(Discussion discussion) {
@@ -150,7 +158,7 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     }
 
     private DiscussionDto.CommentResponse mapToCommentResponse(DiscussionComment comment) {
-        long likeCount = 0; // TODO: 댓글 좋아요 구현 후 실제 값 조회
+        long likeCount = discussionCommentLikeRepository.countByCommentId(comment.getId());
         return new DiscussionDto.CommentResponse(comment, likeCount);
     }
 }
