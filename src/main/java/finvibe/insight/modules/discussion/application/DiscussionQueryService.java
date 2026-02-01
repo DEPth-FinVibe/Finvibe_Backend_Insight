@@ -1,6 +1,7 @@
 package finvibe.insight.modules.discussion.application;
 
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentLikeRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionRepository;
@@ -22,6 +23,7 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
 
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
+    private final DiscussionCommentLikeRepository discussionCommentLikeRepository;
     private final DiscussionLikeRepository discussionLikeRepository;
 
     @Override
@@ -75,7 +77,8 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
     @Override
     public List<DiscussionDto.CommentResponse> findCommentsByDiscussionId(Long discussionId) {
         return discussionCommentRepository.findAllByDiscussionIdOrderByCreatedAtAsc(discussionId).stream()
-                .map(comment -> new DiscussionDto.CommentResponse(comment, 0))
+                .map(comment -> new DiscussionDto.CommentResponse(
+                        comment, discussionCommentLikeRepository.countByCommentId(comment.getId())))
                 .toList();
     }
 
@@ -85,7 +88,8 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
                 .findAllByDiscussionIdOrderByCreatedAtAsc(discussion.getId());
 
         List<DiscussionDto.CommentResponse> commentDtos = comments.stream()
-                .map(comment -> new DiscussionDto.CommentResponse(comment, 0))
+                .map(comment -> new DiscussionDto.CommentResponse(
+                        comment, discussionCommentLikeRepository.countByCommentId(comment.getId())))
                 .toList();
 
         return new DiscussionDto.Response(discussion, likeCount, commentDtos);

@@ -1,0 +1,16 @@
+package finvibe.insight.modules.discussion.application.port.out;
+
+import finvibe.insight.modules.discussion.domain.DiscussionCommentLike;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface DiscussionCommentLikeRepository {
+    long countByCommentId(Long commentId);
+
+    DiscussionCommentLike save(DiscussionCommentLike like);
+
+    void delete(DiscussionCommentLike like);
+
+    Optional<DiscussionCommentLike> findByCommentIdAndUserId(Long commentId, UUID userId);
+}
