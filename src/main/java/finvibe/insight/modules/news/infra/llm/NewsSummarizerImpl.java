@@ -65,7 +65,7 @@ public class NewsSummarizerImpl implements NewsSummarizer {
 
     private AnalysisResult requestAnalysis(String content) {
         String keywordList = Arrays.stream(NewsKeyword.values())
-                .map(Enum::name)
+                .map(k -> String.format("%s(%s)", k.name(), k.getLabel()))
                 .collect(Collectors.joining(", "));
 
         String systemMessage = loadPrompt(SYSTEM_PROMPT_PATH)
@@ -94,7 +94,7 @@ public class NewsSummarizerImpl implements NewsSummarizer {
             return new AnalysisResult(
                     raw.summary(),
                     EconomicSignal.fromString(raw.signal()),
-                    NewsKeyword.valueOf(raw.keyword()));
+                    NewsKeyword.fromString(raw.keyword()));
         } catch (Exception ex) {
             log.error("Failed to parse AI response: {}", response, ex);
             throw new RuntimeException("AI response parsing failed", ex);
