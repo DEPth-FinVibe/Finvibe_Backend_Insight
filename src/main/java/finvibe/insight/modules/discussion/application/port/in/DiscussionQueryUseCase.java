@@ -1,5 +1,6 @@
 package finvibe.insight.modules.discussion.application.port.in;
 
+import finvibe.insight.modules.discussion.dto.DiscussionCommentDto;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 
@@ -10,7 +11,7 @@ public interface DiscussionQueryUseCase {
 
     java.util.Map<Long, Long> countByNewsIds(java.util.List<Long> newsIds);
 
-    List<DiscussionDto.Response> findAllByNewsId(Long newsId);
+    List<DiscussionDto.Response> findAllByNewsId(Long newsId, DiscussionSortType sortType);
 
     List<DiscussionDto.Response> findAll(DiscussionSortType sortType);
 

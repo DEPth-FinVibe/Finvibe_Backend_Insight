@@ -35,9 +35,20 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
     }
 
     @Override
-    public List<DiscussionDto.Response> findAllByNewsId(Long newsId) {
-        return discussionRepository.findAllByNewsIdOrderByCreatedAtAsc(newsId).stream()
+    public List<DiscussionDto.Response> findAllByNewsId(Long newsId, DiscussionSortType sortType) {
+        List<DiscussionDto.Response> responses = discussionRepository
+                .findAllByNewsIdOrderByCreatedAtAsc(newsId).stream()
                 .map(this::mapToDiscussionResponse)
+                .toList();
+
+        if (sortType == DiscussionSortType.POPULAR) {
+            return responses.stream()
+                    .sorted(Comparator.comparingLong(DiscussionDto.Response::getLikeCount).reversed())
+                    .toList();
+        }
+
+        return responses.stream()
+                .sorted(Comparator.comparing(DiscussionDto.Response::getCreatedAt).reversed())
                 .toList();
     }
 
@@ -64,7 +75,7 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
     @Override
     public List<DiscussionDto.CommentResponse> findCommentsByDiscussionId(Long discussionId) {
         return discussionCommentRepository.findAllByDiscussionIdOrderByCreatedAtAsc(discussionId).stream()
-                .map(DiscussionDto.CommentResponse::new)
+                .map(comment -> new DiscussionDto.CommentResponse(comment, 0))
                 .toList();
     }
 
@@ -74,7 +85,7 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
                 .findAllByDiscussionIdOrderByCreatedAtAsc(discussion.getId());
 
         List<DiscussionDto.CommentResponse> commentDtos = comments.stream()
-                .map(DiscussionDto.CommentResponse::new)
+                .map(comment -> new DiscussionDto.CommentResponse(comment, 0))
                 .toList();
 
         return new DiscussionDto.Response(discussion, likeCount, commentDtos);

@@ -1,4 +1,4 @@
-package finvibe.insight.modules.discussion.adapter.in.web;
+package finvibe.insight.modules.discussion.presentation.internal;
 
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
 import lombok.RequiredArgsConstructor;
