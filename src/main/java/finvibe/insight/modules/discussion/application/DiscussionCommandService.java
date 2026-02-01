@@ -2,6 +2,7 @@ package finvibe.insight.modules.discussion.application;
 
 import finvibe.insight.modules.discussion.application.port.in.DiscussionCommandUseCase;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionCommentRepository;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionEventPort;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
 import finvibe.insight.modules.discussion.application.port.out.DiscussionRepository;
 import finvibe.insight.modules.discussion.domain.Discussion;
@@ -25,6 +26,7 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
     private final DiscussionLikeRepository discussionLikeRepository;
+    private final DiscussionEventPort discussionEventPort;
 
     @Override
     public DiscussionDto.Response addDiscussion(Long newsId, UUID userId, String content) {
@@ -32,6 +34,8 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
         // 여기서는 newsId를 그대로 저장하고 이벤트를 발행하는 것에 집중.
         Discussion discussion = Discussion.create(newsId, userId, content);
         Discussion saved = discussionRepository.save(discussion);
+
+        discussionEventPort.publishCreated(newsId);
 
         return mapToDiscussionResponse(saved);
     }
@@ -64,6 +68,8 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
 
         // cascade 설정으로 댓글도 자동 삭제됨
         discussionRepository.delete(discussion);
+
+        discussionEventPort.publishDeleted(discussion.getNewsId());
     }
 
     @Override

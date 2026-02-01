@@ -20,6 +20,14 @@ public class DiscussionRepositoryImpl implements DiscussionRepository {
     }
 
     @Override
+    public java.util.Map<Long, Long> countByNewsIds(java.util.List<Long> newsIds) {
+        return discussionJpaRepository.countByNewsIds(newsIds).stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        DiscussionJpaRepository.NewsCountProjection::getNewsId,
+                        DiscussionJpaRepository.NewsCountProjection::getCount));
+    }
+
+    @Override
     public List<Discussion> findAllByNewsIdOrderByCreatedAtAsc(Long newsId) {
         return discussionJpaRepository.findAllByNewsIdOrderByCreatedAtAsc(newsId);
     }

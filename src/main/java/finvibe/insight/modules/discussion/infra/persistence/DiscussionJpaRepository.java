@@ -11,4 +11,14 @@ public interface DiscussionJpaRepository extends JpaRepository<Discussion, Long>
     List<Discussion> findAllByNewsIdOrderByCreatedAtAsc(Long newsId);
 
     List<Discussion> findAllByOrderByCreatedAtDesc();
+
+    @org.springframework.data.jpa.repository.Query("SELECT d.newsId as newsId, COUNT(d) as count FROM Discussion d WHERE d.newsId IN :newsIds GROUP BY d.newsId")
+    List<NewsCountProjection> countByNewsIds(
+            @org.springframework.data.repository.query.Param("newsIds") List<Long> newsIds);
+
+    interface NewsCountProjection {
+        Long getNewsId();
+
+        Long getCount();
+    }
 }
