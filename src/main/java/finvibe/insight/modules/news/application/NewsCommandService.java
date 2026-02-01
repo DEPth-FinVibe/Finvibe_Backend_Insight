@@ -1,6 +1,6 @@
 package finvibe.insight.modules.news.application;
 
-import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
+import finvibe.insight.modules.news.application.port.out.NewsDiscussionCountPort;
 import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
 import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
@@ -26,7 +26,7 @@ public class NewsCommandService implements NewsCommandUseCase {
     private final NewsLikeRepository newsLikeRepository;
     private final NewsCrawler newsCrawler;
     private final NewsSummarizer newsSummarizer;
-    private final DiscussionQueryUseCase discussionQueryUseCase;
+    private final NewsDiscussionCountPort newsDiscussionCountPort;
 
     @Override
     public void syncLatestNews() {
@@ -54,9 +54,13 @@ public class NewsCommandService implements NewsCommandUseCase {
     @Override
     public void syncAllDiscussionCounts() {
         List<News> allNews = newsRepository.findAll();
+        List<Long> newsIds = allNews.stream().map(News::getId).toList();
+
+        // 벌크로 토론 수 조회 (네트워크 호출 최소화)
+        java.util.Map<Long, Long> countsMap = newsDiscussionCountPort.getDiscussionCounts(newsIds);
 
         for (News news : allNews) {
-            long currentCount = discussionQueryUseCase.countByNewsId(news.getId());
+            long currentCount = countsMap.getOrDefault(news.getId(), 0L);
 
             if (news.getDiscussionCount() != currentCount) {
                 news.syncDiscussionCount(currentCount);

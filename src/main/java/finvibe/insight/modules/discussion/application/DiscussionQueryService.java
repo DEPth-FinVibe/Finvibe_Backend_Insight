@@ -30,6 +30,11 @@ public class DiscussionQueryService implements DiscussionQueryUseCase {
     }
 
     @Override
+    public java.util.Map<Long, Long> countByNewsIds(java.util.List<Long> newsIds) {
+        return discussionRepository.countByNewsIds(newsIds);
+    }
+
+    @Override
     public List<DiscussionDto.Response> findAllByNewsId(Long newsId) {
         return discussionRepository.findAllByNewsIdOrderByCreatedAtAsc(newsId).stream()
                 .map(this::mapToDiscussionResponse)

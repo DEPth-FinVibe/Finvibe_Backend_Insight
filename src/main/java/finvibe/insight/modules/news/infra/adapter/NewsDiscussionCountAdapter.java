@@ -1,0 +1,31 @@
+package finvibe.insight.modules.news.infra.adapter;
+
+import finvibe.insight.modules.news.application.port.out.NewsDiscussionCountPort;
+import finvibe.insight.modules.news.infra.client.HttpDiscussionClient;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+
+@Component
+@RequiredArgsConstructor
+public class NewsDiscussionCountAdapter implements NewsDiscussionCountPort {
+
+    private final HttpDiscussionClient httpDiscussionClient;
+
+    @Override
+    public long getDiscussionCount(Long newsId) {
+        Map<Long, Long> counts = httpDiscussionClient.getDiscussionCounts(List.of(newsId));
+        return counts.getOrDefault(newsId, 0L);
+    }
+
+    /**
+     * HTTP를 통해 외부 Discussion 서비스의 벌크 카운트 API를 호출합니다.
+     * 분산 환경에서는 다른 노드의 엔드포인트를 호출하게 됩니다.
+     */
+    @Override
+    public Map<Long, Long> getDiscussionCounts(List<Long> newsIds) {
+        return httpDiscussionClient.getDiscussionCounts(newsIds);
+    }
+}

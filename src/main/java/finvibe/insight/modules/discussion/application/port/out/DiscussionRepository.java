@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface DiscussionRepository {
     long countByNewsId(Long newsId);
 
+    java.util.Map<Long, Long> countByNewsIds(java.util.List<Long> newsIds);
+
     List<Discussion> findAllByNewsIdOrderByCreatedAtAsc(Long newsId);
 
     List<Discussion> findAllOrderByCreatedAtDesc();

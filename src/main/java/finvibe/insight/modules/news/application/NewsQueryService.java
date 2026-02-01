@@ -58,6 +58,6 @@ public class NewsQueryService implements NewsQueryUseCase {
 
         // 프레젠테이션 계층 구현 전: 토론 목록은 빈 리스트로 반환
         // 향후 프레젠테이션 계층에서 별도 API로 조회 예정
-        return new NewsDto.DetailResponse(news, likeCount, news.getDiscussionCount(), List.of());
+        return new NewsDto.DetailResponse(news, likeCount, news.getDiscussionCount());
     }
 }

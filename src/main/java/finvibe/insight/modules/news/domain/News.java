@@ -59,6 +59,16 @@ public class News extends TimeStampedBaseEntity {
         this.economicSignal = economicSignal;
     }
 
+    public void incrementDiscussionCount() {
+        this.discussionCount++;
+    }
+
+    public void decrementDiscussionCount() {
+        if (this.discussionCount > 0) {
+            this.discussionCount--;
+        }
+    }
+
     public void syncDiscussionCount(long count) {
         this.discussionCount = count;
     }
