@@ -1,6 +1,16 @@
 spring:
   application:
     name: insight
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: news-module-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 news:
   crawler:
@@ -8,5 +18,9 @@ news:
     cron: "0 0 12 * * *"
 
 gemini:
-  api-key: "YOUR_GEMINI_API_KEY_HERE" # 여기에 발급받으신 Gemini API 키를 입력하세요.
+  api-key:
   model: gemini-1.5-flash
+
+discussion:
+  service:
+    url: http://localhost:8080
