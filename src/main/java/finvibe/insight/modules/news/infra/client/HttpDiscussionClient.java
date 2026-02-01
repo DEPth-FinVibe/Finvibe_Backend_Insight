@@ -1,5 +1,7 @@
 package finvibe.insight.modules.news.infra.client;
 
+import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
@@ -22,4 +24,12 @@ public interface HttpDiscussionClient {
      */
     @GetExchange("/counts")
     Map<Long, Long> getDiscussionCounts(@RequestParam("newsIds") List<Long> newsIds);
+
+    /**
+     * 특정 뉴스의 토론 목록을 조회합니다.
+     */
+    @GetExchange
+    List<DiscussionDto.Response> getDiscussions(
+            @RequestParam("newsId") Long newsId,
+            @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType);
 }
