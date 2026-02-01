@@ -1,5 +1,6 @@
 package finvibe.insight.modules.news.dto;
 
+import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsKeyword;
@@ -40,9 +41,10 @@ public class NewsDto {
         private final NewsKeyword keyword;
         private final long likeCount;
         private final long discussionCount;
+        private final List<DiscussionDto.Response> discussions;
         private final LocalDateTime createdAt;
 
-        public DetailResponse(News news, long likeCount, long discussionCount) {
+        public DetailResponse(News news, long likeCount, long discussionCount, List<DiscussionDto.Response> discussions) {
             this.id = news.getId();
             this.title = news.getTitle();
             this.content = news.getContent();
@@ -51,6 +53,7 @@ public class NewsDto {
             this.keyword = news.getKeyword();
             this.likeCount = likeCount;
             this.discussionCount = discussionCount;
+            this.discussions = discussions;
             this.createdAt = news.getCreatedAt();
         }
     }

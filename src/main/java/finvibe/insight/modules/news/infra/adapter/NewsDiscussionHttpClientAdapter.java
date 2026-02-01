@@ -1,6 +1,8 @@
 package finvibe.insight.modules.news.infra.adapter;
 
-import finvibe.insight.modules.news.application.port.out.NewsDiscussionCountPort;
+import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import finvibe.insight.modules.discussion.dto.DiscussionSortType;
+import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.infra.client.HttpDiscussionClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,7 +12,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class NewsDiscussionCountAdapter implements NewsDiscussionCountPort {
+public class NewsDiscussionHttpClientAdapter implements NewsDiscussionPort {
 
     private final HttpDiscussionClient httpDiscussionClient;
 
@@ -27,5 +29,10 @@ public class NewsDiscussionCountAdapter implements NewsDiscussionCountPort {
     @Override
     public Map<Long, Long> getDiscussionCounts(List<Long> newsIds) {
         return httpDiscussionClient.getDiscussionCounts(newsIds);
+    }
+
+    @Override
+    public List<DiscussionDto.Response> getDiscussions(Long newsId, DiscussionSortType sortType) {
+        return httpDiscussionClient.getDiscussions(newsId, sortType);
     }
 }
