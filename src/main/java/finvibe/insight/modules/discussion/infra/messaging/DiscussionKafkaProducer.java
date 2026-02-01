@@ -1,4 +1,4 @@
-package finvibe.insight.modules.discussion.infra.adapter;
+package finvibe.insight.modules.discussion.infra.messaging;
 
 import finvibe.insight.modules.discussion.application.port.out.DiscussionEventPort;
 import lombok.RequiredArgsConstructor;

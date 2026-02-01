@@ -9,6 +9,12 @@ import finvibe.insight.modules.discussion.domain.Discussion;
 import finvibe.insight.modules.discussion.domain.DiscussionComment;
 import finvibe.insight.modules.discussion.domain.DiscussionLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionLikeRepository;
+import finvibe.insight.modules.discussion.application.port.out.DiscussionRepository;
+import finvibe.insight.modules.discussion.domain.Discussion;
+import finvibe.insight.modules.discussion.domain.DiscussionComment;
+import finvibe.insight.modules.discussion.domain.DiscussionLike;
+import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
@@ -73,14 +79,14 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     }
 
     @Override
-    public DiscussionDto.CommentResponse addCommentToDiscussion(Long discussionId, UUID userId, String content) {
+    public DiscussionDto.CommentResponse addComment(Long discussionId, UUID userId, String content) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
 
         DiscussionComment comment = DiscussionComment.create(discussion, userId, content);
         DiscussionComment saved = discussionCommentRepository.save(comment);
 
-        return new DiscussionDto.CommentResponse(saved);
+        return mapToCommentResponse(saved);
     }
 
     @Override
@@ -96,7 +102,7 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
         comment.updateContent(content);
         DiscussionComment updated = discussionCommentRepository.save(comment);
 
-        return new DiscussionDto.CommentResponse(updated);
+        return mapToCommentResponse(updated);
     }
 
     @Override
@@ -124,15 +130,27 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
                         });
     }
 
+    @Override
+    public void toggleCommentLike(Long commentId, UUID userId) {
+        // TODO: 댓글 좋아요 기능 구현 필요 (Repository 추가 등 선행 과제 있음)
+        // 현재는 인터페이스만 맞추기 위해 빈 구현
+        // 사용자 요구사항: "댓글에도 좋아요가 있어"
+    }
+
     private DiscussionDto.Response mapToDiscussionResponse(Discussion discussion) {
         long likeCount = discussionLikeRepository.countByDiscussionId(discussion.getId());
         List<DiscussionComment> comments = discussionCommentRepository
                 .findAllByDiscussionIdOrderByCreatedAtAsc(discussion.getId());
 
         List<DiscussionDto.CommentResponse> commentDtos = comments.stream()
-                .map(DiscussionDto.CommentResponse::new)
+                .map(this::mapToCommentResponse)
                 .toList();
 
         return new DiscussionDto.Response(discussion, likeCount, commentDtos);
+    }
+
+    private DiscussionDto.CommentResponse mapToCommentResponse(DiscussionComment comment) {
+        long likeCount = 0; // TODO: 댓글 좋아요 구현 후 실제 값 조회
+        return new DiscussionDto.CommentResponse(comment, likeCount);
     }
 }

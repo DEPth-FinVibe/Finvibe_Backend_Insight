@@ -42,13 +42,15 @@ public class DiscussionDto {
         private final UUID userId;
         private final String content;
         private final boolean isEdited;
+        private final long likeCount;
         private final LocalDateTime createdAt;
 
-        public CommentResponse(DiscussionComment comment) {
+        public CommentResponse(DiscussionComment comment, long likeCount) {
             this.id = comment.getId();
             this.userId = comment.getUserId();
             this.content = comment.getContent();
             this.isEdited = comment.isEdited();
+            this.likeCount = likeCount;
             this.createdAt = comment.getCreatedAt();
         }
     }
