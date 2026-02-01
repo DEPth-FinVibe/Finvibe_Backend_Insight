@@ -1,5 +1,7 @@
 package finvibe.insight.modules.news.presentation.external;
 
+import finvibe.insight.boot.security.model.AuthenticatedUser;
+import finvibe.insight.boot.security.model.Requester;
 import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
 import finvibe.insight.modules.news.application.port.in.NewsQueryUseCase;
 import finvibe.insight.modules.news.dto.NewsDto;
@@ -39,10 +41,9 @@ public class NewsController {
 
     /**
      * 뉴스에 좋아요를 토글합니다. (로그인 사용자 필요)
-     * TODO: 추후 인증된 사용자 ID를 주입받도록 수정 필요 (현재는 임시 UUID 사용)
      */
     @PostMapping("/{id}/like")
-    public void toggleLike(@PathVariable("id") Long id, @RequestParam("userId") UUID userId) {
-        newsCommandUseCase.toggleNewsLike(id, userId);
+    public void toggleLike(@PathVariable("id") Long id, @AuthenticatedUser Requester requester) {
+        newsCommandUseCase.toggleNewsLike(id, requester.getUuid());
     }
 }
