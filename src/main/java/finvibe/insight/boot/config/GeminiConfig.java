@@ -1,4 +1,4 @@
-package finvibe.insight.shared.config;
+package finvibe.insight.boot.config;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;

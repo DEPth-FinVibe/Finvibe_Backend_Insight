@@ -1,9 +1,8 @@
-package finvibe.insight.modules.news.infra.adapter;
+package finvibe.insight.modules.news.infra.messaging;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
-import finvibe.insight.modules.news.domain.News;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

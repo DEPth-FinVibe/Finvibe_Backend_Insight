@@ -1,4 +1,4 @@
-package finvibe.insight.modules.news.infra.config;
+package finvibe.insight.boot.config;
 
 import finvibe.insight.modules.news.infra.client.HttpDiscussionClient;
 import org.springframework.beans.factory.annotation.Value;
