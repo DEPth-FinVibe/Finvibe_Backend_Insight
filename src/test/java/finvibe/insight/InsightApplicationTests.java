@@ -5,23 +5,23 @@ import finvibe.insight.modules.news.infra.client.HttpDiscussionClient;
 import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.shared.dto.DiscussionEvent;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class InsightApplicationTests {
 
-	@MockBean
+	@MockitoBean
 	private ChatModel chatModel;
 
-	@MockBean
+	@MockitoBean
 	private HttpDiscussionClient httpDiscussionClient;
 
-	@MockBean
+	@MockitoBean
 	private KafkaTemplate<String, DiscussionEvent> kafkaTemplate;
 
-	@MockBean
+	@MockitoBean
 	private NewsCrawler newsCrawler;
 
 	@Test
