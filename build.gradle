@@ -37,7 +37,7 @@ dependencies {
 	// JSON
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-	testRuntimeOnly 'com.h2database:h2'
+	testImplementation 'com.h2database:h2'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
