@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: local
+  web:
+    resources:
+      add-mappings: false
+
+  application:
+    name: insight
+
+news:
+  crawler:
+    max-items: 20
+    cron: "0 0 12 * * *"
+
+gemini:
+  api-key:
+  model: gemini-1.5-flash
+
+discussion:
+  service:
+    url: http://localhost:8080
