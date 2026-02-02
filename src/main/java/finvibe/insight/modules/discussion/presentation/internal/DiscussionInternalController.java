@@ -1,6 +1,8 @@
 package finvibe.insight.modules.discussion.presentation.internal;
 
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
+import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,11 +13,24 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/discussions")
+@RequestMapping("/api/internal/discussions")
 @RequiredArgsConstructor
-public class DiscussionCountController {
+public class DiscussionInternalController {
 
     private final DiscussionQueryUseCase discussionQueryUseCase;
+
+    /**
+     * 특정 뉴스의 토론 목록을 조회합니다.
+     *
+     * @param newsId   뉴스 ID
+     * @param sortType 정렬 기준 (LATEST, POPULAR)
+     */
+    @GetMapping
+    public List<DiscussionDto.Response> getDiscussions(
+            @RequestParam("newsId") Long newsId,
+            @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType) {
+        return discussionQueryUseCase.findAllByNewsId(newsId, sortType);
+    }
 
     /**
      * 여러 뉴스의 토론 수를 벌크로 조회합니다.
