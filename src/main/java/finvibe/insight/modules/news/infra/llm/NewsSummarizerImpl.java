@@ -15,6 +15,7 @@ import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.NewsKeyword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "gemini.api-key")
 public class NewsSummarizerImpl implements NewsSummarizer {
 
     private static final String SYSTEM_PROMPT_PATH = "classpath:prompts/news-analysis-system.txt";
