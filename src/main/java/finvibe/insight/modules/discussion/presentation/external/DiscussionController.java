@@ -19,16 +19,14 @@ public class DiscussionController {
     private final DiscussionCommandUseCase discussionCommandUseCase;
 
     /**
-     * 특정 뉴스의 토론 목록을 조회합니다.
-     * 
-     * @param newsId   뉴스 ID
+     * 전체 토론 목록을 조회합니다.
+     *
      * @param sortType 정렬 기준 (LATEST, POPULAR)
      */
     @GetMapping
     public List<DiscussionDto.Response> getDiscussions(
-            @RequestParam("newsId") Long newsId,
             @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType) {
-        return discussionQueryUseCase.findAllByNewsId(newsId, sortType);
+        return discussionQueryUseCase.findAll(sortType);
     }
 
     /**
