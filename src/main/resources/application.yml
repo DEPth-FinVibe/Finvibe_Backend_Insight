@@ -14,7 +14,7 @@ news:
     cron: "0 0 12 * * *"
 
 gemini:
-  api-key:
+  api-key: ${GEMINI_API_KEY:}
   model: gemini-1.5-flash
 
 discussion:

@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class NewsJpaRepositoryImpl implements NewsRepository {
+public class NewsRepositoryAdapter implements NewsRepository {
 
     private final NewsJpaRepository newsJpaRepository;
 

@@ -31,6 +31,8 @@ jobs:
       # 4️⃣ Gradle Test
       - name: Test with Gradle
         run: ./gradlew test --no-daemon --build-cache --parallel
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
   build-and-deploy:
     runs-on: ubuntu-latest
