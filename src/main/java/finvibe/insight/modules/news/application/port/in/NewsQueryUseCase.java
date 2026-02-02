@@ -9,4 +9,6 @@ public interface NewsQueryUseCase {
     List<NewsDto.Response> findAllNewsSummary(NewsSortType sortType);
 
     NewsDto.DetailResponse findNewsById(Long id);
+
+    List<NewsDto.KeywordTrendResponse> findDailyTopKeywords();
 }

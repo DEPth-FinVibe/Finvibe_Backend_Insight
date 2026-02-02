@@ -2,6 +2,7 @@ package finvibe.insight.modules.news.application.port.out;
 
 import finvibe.insight.modules.news.domain.News;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,4 +14,6 @@ public interface NewsRepository {
     Optional<News> findById(Long id);
 
     boolean existsByTitle(String title);
+
+    List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter);
 }

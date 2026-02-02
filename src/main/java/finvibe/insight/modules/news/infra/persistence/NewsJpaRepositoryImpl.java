@@ -5,6 +5,7 @@ import finvibe.insight.modules.news.domain.News;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +33,10 @@ public class NewsJpaRepositoryImpl implements NewsRepository {
     @Override
     public boolean existsByTitle(String title) {
         return newsJpaRepository.existsByTitle(title);
+    }
+
+    @Override
+    public List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter) {
+        return newsJpaRepository.findAllByCreatedAtAfter(createdAfter);
     }
 }

@@ -5,6 +5,7 @@ import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
 import finvibe.insight.modules.news.domain.News;
+import finvibe.insight.modules.news.domain.NewsKeyword;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
 import finvibe.insight.modules.news.dto.NewsDto;
 import finvibe.insight.modules.news.dto.NewsSortType;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ public class NewsQueryService implements NewsQueryUseCase {
     private final NewsRepository newsRepository;
     private final NewsLikeRepository newsLikeRepository;
     private final NewsDiscussionPort newsDiscussionPort;
+    private static final int DAILY_KEYWORD_LIMIT = 5;
 
     @Override
     public List<NewsDto.Response> findAllNewsSummary(NewsSortType sortType) {
@@ -63,5 +66,21 @@ public class NewsQueryService implements NewsQueryUseCase {
                 newsDiscussionPort.getDiscussions(id, DiscussionSortType.LATEST);
 
         return new NewsDto.DetailResponse(news, likeCount, news.getDiscussionCount(), discussions);
+    }
+
+    @Override
+    public List<NewsDto.KeywordTrendResponse> findDailyTopKeywords() {
+        LocalDateTime since = LocalDateTime.now().minusDays(1);
+        List<News> newsList = newsRepository.findAllByCreatedAtAfter(since);
+
+        return newsList.stream()
+                .filter(news -> news.getKeyword() != null)
+                .collect(Collectors.groupingBy(News::getKeyword, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<NewsKeyword, Long>comparingByValue().reversed())
+                .limit(DAILY_KEYWORD_LIMIT)
+                .map(entry -> new NewsDto.KeywordTrendResponse(entry.getKey(), entry.getValue()))
+                .toList();
     }
 }

@@ -57,4 +57,15 @@ public class NewsDto {
             this.createdAt = news.getCreatedAt();
         }
     }
+
+    @Getter
+    public static class KeywordTrendResponse {
+        private final NewsKeyword keyword;
+        private final long count;
+
+        public KeywordTrendResponse(NewsKeyword keyword, long count) {
+            this.keyword = keyword;
+            this.count = count;
+        }
+    }
 }
