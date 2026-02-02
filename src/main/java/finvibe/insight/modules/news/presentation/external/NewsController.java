@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/news")
@@ -45,5 +44,13 @@ public class NewsController {
     @PostMapping("/{id}/like")
     public void toggleLike(@PathVariable("id") Long id, @AuthenticatedUser Requester requester) {
         newsCommandUseCase.toggleNewsLike(id, requester.getUuid());
+    }
+
+    /**
+     * 하루 기준으로 가장 많이 등장한 키워드 5개를 조회합니다.
+     */
+    @GetMapping("/keywords/trending")
+    public List<NewsDto.KeywordTrendResponse> getDailyKeywordTrends() {
+        return newsQueryUseCase.findDailyTopKeywords();
     }
 }
