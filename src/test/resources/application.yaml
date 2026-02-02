@@ -18,6 +18,11 @@ spring:
       port: 6379
   kafka:
     bootstrap-servers: localhost:9092
+    listener:
+      auto-startup: false
+  task:
+    scheduling:
+      enabled: false
   mongodb:
     uri: mongodb://localhost:27017/testdb
 
