@@ -4,6 +4,8 @@ import finvibe.insight.modules.discussion.application.port.in.DiscussionCommandU
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.discussion.dto.DiscussionSortType;
+import finvibe.insight.boot.security.model.AuthenticatedUser;
+import finvibe.insight.boot.security.model.Requester;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/discussions")
@@ -49,11 +50,11 @@ public class DiscussionController {
     public DiscussionDto.Response createDiscussion(
             @Parameter(description = "News id the discussion belongs to")
             @RequestParam("newsId") Long newsId,
-            @Parameter(description = "Author user id")
-            @RequestParam("userId") UUID userId,
+            @Parameter(hidden = true)
+            @AuthenticatedUser Requester requester,
             @Parameter(description = "Discussion content")
             @RequestParam("content") String content) {
-        return discussionCommandUseCase.addDiscussion(newsId, userId, content);
+        return discussionCommandUseCase.addDiscussion(newsId, requester.getUuid(), content);
     }
 
     /**
@@ -67,9 +68,9 @@ public class DiscussionController {
     public void deleteDiscussion(
             @Parameter(description = "Discussion id")
             @PathVariable("discussionId") Long discussionId,
-            @Parameter(description = "Author user id")
-            @RequestParam("userId") UUID userId) {
-        discussionCommandUseCase.deleteDiscussion(discussionId, userId);
+            @Parameter(hidden = true)
+            @AuthenticatedUser Requester requester) {
+        discussionCommandUseCase.deleteDiscussion(discussionId, requester.getUuid());
     }
 
     /**
@@ -83,8 +84,8 @@ public class DiscussionController {
     public void toggleLike(
             @Parameter(description = "Discussion id")
             @PathVariable("discussionId") Long discussionId,
-            @Parameter(description = "User id")
-            @RequestParam("userId") UUID userId) {
-        discussionCommandUseCase.toggleDiscussionLike(discussionId, userId);
+            @Parameter(hidden = true)
+            @AuthenticatedUser Requester requester) {
+        discussionCommandUseCase.toggleDiscussionLike(discussionId, requester.getUuid());
     }
 }
