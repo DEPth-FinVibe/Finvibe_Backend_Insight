@@ -2,7 +2,7 @@ package finvibe.insight.modules.discussion.presentation.external;
 
 import finvibe.insight.boot.security.model.AuthenticatedUser;
 import finvibe.insight.boot.security.model.Requester;
-import finvibe.insight.modules.discussion.application.port.in.DiscussionCommandUseCase;
+import finvibe.insight.modules.discussion.application.port.in.CommentCommandUseCase;
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +20,7 @@ import java.util.List;
 public class DiscussionCommentController {
 
     private final DiscussionQueryUseCase discussionQueryUseCase;
-    private final DiscussionCommandUseCase discussionCommandUseCase;
+    private final CommentCommandUseCase commentCommandUseCase;
 
     /**
      * 특정 토론의 댓글 목록을 조회합니다.
@@ -49,7 +49,7 @@ public class DiscussionCommentController {
             @AuthenticatedUser Requester requester,
             @Parameter(description = "Comment content")
             @RequestParam("content") String content) {
-        return discussionCommandUseCase.addComment(discussionId, requester.getUuid(), content);
+        return commentCommandUseCase.addComment(discussionId, requester.getUuid(), content);
     }
 
     /**
@@ -65,7 +65,7 @@ public class DiscussionCommentController {
             @PathVariable("commentId") Long commentId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
-        discussionCommandUseCase.deleteComment(commentId, requester.getUuid());
+        commentCommandUseCase.deleteComment(commentId, requester.getUuid());
     }
 
     /**
@@ -81,6 +81,6 @@ public class DiscussionCommentController {
             @PathVariable("commentId") Long commentId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
-        discussionCommandUseCase.toggleCommentLike(commentId, requester.getUuid());
+        commentCommandUseCase.toggleCommentLike(commentId, requester.getUuid());
     }
 }
