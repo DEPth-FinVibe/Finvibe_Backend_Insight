@@ -26,3 +26,25 @@ springdoc:
     path: /doc/user/swagger-ui.html
   api-docs:
     path: /doc/user/v3/api-docs
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      discussionServiceCount:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      discussionServiceCounts:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      discussionServiceList:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s

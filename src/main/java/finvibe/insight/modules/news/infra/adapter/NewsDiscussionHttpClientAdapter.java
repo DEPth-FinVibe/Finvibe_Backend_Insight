@@ -5,6 +5,8 @@ import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.infra.client.HttpDiscussionClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,11 +17,29 @@ import java.util.Map;
 public class NewsDiscussionHttpClientAdapter implements NewsDiscussionPort {
 
     private final HttpDiscussionClient httpDiscussionClient;
+    private final CircuitBreakerFactory<?, ?> circuitBreakerFactory;
+
+    private CircuitBreaker discussionCountBreaker() {
+        return circuitBreakerFactory.create("discussionServiceCount");
+    }
+
+    private CircuitBreaker discussionCountsBreaker() {
+        return circuitBreakerFactory.create("discussionServiceCounts");
+    }
+
+    private CircuitBreaker discussionsBreaker() {
+        return circuitBreakerFactory.create("discussionServiceList");
+    }
 
     @Override
     public long getDiscussionCount(Long newsId) {
-        Map<Long, Long> counts = httpDiscussionClient.getDiscussionCounts(List.of(newsId));
-        return counts.getOrDefault(newsId, 0L);
+        return discussionCountBreaker().run(
+                () -> {
+                    Map<Long, Long> counts = httpDiscussionClient.getDiscussionCounts(List.of(newsId));
+                    return counts.getOrDefault(newsId, 0L);
+                },
+                ex -> 0L
+        );
     }
 
     /**
@@ -28,11 +48,17 @@ public class NewsDiscussionHttpClientAdapter implements NewsDiscussionPort {
      */
     @Override
     public Map<Long, Long> getDiscussionCounts(List<Long> newsIds) {
-        return httpDiscussionClient.getDiscussionCounts(newsIds);
+        return discussionCountsBreaker().run(
+                () -> httpDiscussionClient.getDiscussionCounts(newsIds),
+                ex -> Map.of()
+        );
     }
 
     @Override
     public List<DiscussionDto.Response> getDiscussions(Long newsId, DiscussionSortType sortType) {
-        return httpDiscussionClient.getDiscussions(newsId, sortType);
+        return discussionsBreaker().run(
+                () -> httpDiscussionClient.getDiscussions(newsId, sortType),
+                ex -> List.of()
+        );
     }
 }
