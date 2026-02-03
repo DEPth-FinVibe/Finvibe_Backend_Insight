@@ -6,6 +6,9 @@ import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
 import finvibe.insight.modules.news.application.port.in.NewsQueryUseCase;
 import finvibe.insight.modules.news.dto.NewsDto;
 import finvibe.insight.modules.news.dto.NewsSortType;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/news")
 @RequiredArgsConstructor
+@Tag(name = "News", description = "News queries and actions")
 public class NewsController {
 
     private final NewsQueryUseCase newsQueryUseCase;
@@ -25,7 +29,12 @@ public class NewsController {
      * @param sortType 정렬 기준 (LATEST: 최신순, POPULAR: 인기순-좋아요순)
      */
     @GetMapping
+    @Operation(
+            summary = "List news",
+            description = "Returns a list of news summaries sorted by the given type."
+    )
     public List<NewsDto.Response> getNewsList(
+            @Parameter(description = "Sort order (LATEST or POPULAR)")
             @RequestParam(value = "sort", defaultValue = "LATEST") NewsSortType sortType) {
         return newsQueryUseCase.findAllNewsSummary(sortType);
     }
@@ -34,6 +43,10 @@ public class NewsController {
      * 뉴스 상세 내용을 조회합니다.
      */
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get news detail",
+            description = "Returns a single news item with full details, likes, and discussions."
+    )
     public NewsDto.DetailResponse getNewsDetail(@PathVariable("id") Long id) {
         return newsQueryUseCase.findNewsById(id);
     }
@@ -42,6 +55,10 @@ public class NewsController {
      * 뉴스에 좋아요를 토글합니다. (로그인 사용자 필요)
      */
     @PostMapping("/{id}/like")
+    @Operation(
+            summary = "Toggle news like",
+            description = "Toggles like for the authenticated user."
+    )
     public void toggleLike(@PathVariable("id") Long id, @AuthenticatedUser Requester requester) {
         newsCommandUseCase.toggleNewsLike(id, requester.getUuid());
     }
@@ -50,6 +67,10 @@ public class NewsController {
      * 하루 기준으로 가장 많이 등장한 키워드 5개를 조회합니다.
      */
     @GetMapping("/keywords/trending")
+    @Operation(
+            summary = "Get daily keyword trends",
+            description = "Returns top 5 keywords aggregated over the last day."
+    )
     public List<NewsDto.KeywordTrendResponse> getDailyKeywordTrends() {
         return newsQueryUseCase.findDailyTopKeywords();
     }

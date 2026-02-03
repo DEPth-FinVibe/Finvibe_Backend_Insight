@@ -20,3 +20,9 @@ gemini:
 discussion:
   service:
     url: http://localhost:8080
+
+springdoc:
+  swagger-ui:
+    path: /doc/user/swagger-ui.html
+  api-docs:
+    path: /doc/user/v3/api-docs

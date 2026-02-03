@@ -3,6 +3,9 @@ package finvibe.insight.modules.discussion.presentation.internal;
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import finvibe.insight.modules.discussion.dto.DiscussionSortType;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/internal/discussions")
 @RequiredArgsConstructor
+@Tag(name = "Discussion Internal", description = "Internal discussion APIs")
 public class DiscussionInternalController {
 
     private final DiscussionQueryUseCase discussionQueryUseCase;
@@ -26,8 +30,14 @@ public class DiscussionInternalController {
      * @param sortType 정렬 기준 (LATEST, POPULAR)
      */
     @GetMapping
+    @Operation(
+            summary = "List discussions by news",
+            description = "Returns discussions for a news item."
+    )
     public List<DiscussionDto.Response> getDiscussions(
+            @Parameter(description = "News id")
             @RequestParam("newsId") Long newsId,
+            @Parameter(description = "Sort order (LATEST or POPULAR)")
             @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType) {
         return discussionQueryUseCase.findAllByNewsId(newsId, sortType);
     }
@@ -40,6 +50,10 @@ public class DiscussionInternalController {
      * @return Map<newsId, count>
      */
     @GetMapping("/counts")
+    @Operation(
+            summary = "Bulk discussion counts",
+            description = "Returns a map of news id to discussion count."
+    )
     public Map<Long, Long> getDiscussionCounts(@RequestParam("newsIds") List<Long> newsIds) {
         return discussionQueryUseCase.countByNewsIds(newsIds);
     }
