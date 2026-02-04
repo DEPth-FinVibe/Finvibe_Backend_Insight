@@ -35,3 +35,8 @@ springdoc:
     path: /doc/insight/swagger-ui.html
   api-docs:
     path: /doc/insight/v3/api-docs
+
+
+security:
+  jwt:
+    hmac-secret: ${JWT_SECRET}
