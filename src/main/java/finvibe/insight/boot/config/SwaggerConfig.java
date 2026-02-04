@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Finvibe Insight API",
-                description = "API documentation for the Insight service.",
+                title = "Finvibe Insight API 문서",
+                description = "Insight 서비스의 API 문서입니다.",
                 version = "v1"
         )
 )

@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/internal/discussions")
 @RequiredArgsConstructor
-@Tag(name = "Discussion Internal", description = "Internal discussion APIs")
+@Tag(name = "토론 내부", description = "내부 토론 API")
 public class DiscussionInternalController {
 
     private final DiscussionQueryUseCase discussionQueryUseCase;
@@ -31,13 +31,13 @@ public class DiscussionInternalController {
      */
     @GetMapping
     @Operation(
-            summary = "List discussions by news",
-            description = "Returns discussions for a news item."
+            summary = "뉴스별 토론 목록 조회",
+            description = "특정 뉴스의 토론 목록을 반환합니다."
     )
     public List<DiscussionDto.Response> getDiscussions(
-            @Parameter(description = "News id")
+            @Parameter(description = "뉴스 ID")
             @RequestParam("newsId") Long newsId,
-            @Parameter(description = "Sort order (LATEST or POPULAR)")
+            @Parameter(description = "정렬 기준 (LATEST 또는 POPULAR)")
             @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType) {
         return discussionQueryUseCase.findAllByNewsId(newsId, sortType);
     }
@@ -51,8 +51,8 @@ public class DiscussionInternalController {
      */
     @GetMapping("/counts")
     @Operation(
-            summary = "Bulk discussion counts",
-            description = "Returns a map of news id to discussion count."
+            summary = "토론 수 벌크 조회",
+            description = "news id별 토론 수 맵을 반환합니다."
     )
     public Map<Long, Long> getDiscussionCounts(@RequestParam("newsIds") List<Long> newsIds) {
         return discussionQueryUseCase.countByNewsIds(newsIds);

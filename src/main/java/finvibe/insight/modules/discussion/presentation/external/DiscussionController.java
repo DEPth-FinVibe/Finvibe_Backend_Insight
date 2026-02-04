@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/discussions")
 @RequiredArgsConstructor
-@Tag(name = "Discussions", description = "Discussion threads")
+@Tag(name = "토론", description = "토론 스레드")
 public class DiscussionController {
 
     private final DiscussionQueryUseCase discussionQueryUseCase;
@@ -30,11 +30,11 @@ public class DiscussionController {
      */
     @GetMapping
     @Operation(
-            summary = "List discussions",
-            description = "Returns discussions sorted by LATEST or POPULAR."
+            summary = "토론 목록 조회",
+            description = "LATEST 또는 POPULAR 기준으로 토론 목록을 반환합니다."
     )
     public List<DiscussionDto.Response> getDiscussions(
-            @Parameter(description = "Sort order (LATEST or POPULAR)")
+            @Parameter(description = "정렬 기준 (LATEST 또는 POPULAR)")
             @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType) {
         return discussionQueryUseCase.findAll(sortType);
     }
@@ -44,15 +44,15 @@ public class DiscussionController {
      */
     @PostMapping
     @Operation(
-            summary = "Create discussion",
-            description = "Creates a new discussion thread."
+            summary = "토론 작성",
+            description = "새 토론 스레드를 생성합니다."
     )
     public DiscussionDto.Response createDiscussion(
-            @Parameter(description = "News id the discussion belongs to")
+            @Parameter(description = "토론이 연결된 뉴스 ID")
             @RequestParam("newsId") Long newsId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester,
-            @Parameter(description = "Discussion content")
+            @Parameter(description = "토론 내용")
             @RequestParam("content") String content) {
         return discussionCommandUseCase.addDiscussion(newsId, requester.getUuid(), content);
     }
@@ -62,11 +62,11 @@ public class DiscussionController {
      */
     @DeleteMapping("/{discussionId}")
     @Operation(
-            summary = "Delete discussion",
-            description = "Deletes a discussion thread if the user is the author."
+            summary = "토론 삭제",
+            description = "작성자인 경우 토론 스레드를 삭제합니다."
     )
     public void deleteDiscussion(
-            @Parameter(description = "Discussion id")
+            @Parameter(description = "토론 ID")
             @PathVariable("discussionId") Long discussionId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
@@ -78,11 +78,11 @@ public class DiscussionController {
      */
     @PostMapping("/{discussionId}/like")
     @Operation(
-            summary = "Toggle discussion like",
-            description = "Toggles like for the given user."
+            summary = "토론 좋아요 토글",
+            description = "해당 사용자에 대해 좋아요를 토글합니다."
     )
     public void toggleLike(
-            @Parameter(description = "Discussion id")
+            @Parameter(description = "토론 ID")
             @PathVariable("discussionId") Long discussionId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {

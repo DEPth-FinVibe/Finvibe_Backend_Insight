@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/news")
 @RequiredArgsConstructor
-@Tag(name = "News", description = "News queries and actions")
+@Tag(name = "뉴스", description = "뉴스 조회 및 동작")
 public class NewsController {
 
     private final NewsQueryUseCase newsQueryUseCase;
@@ -30,11 +30,11 @@ public class NewsController {
      */
     @GetMapping
     @Operation(
-            summary = "List news",
-            description = "Returns a list of news summaries sorted by the given type."
+            summary = "뉴스 목록 조회",
+            description = "지정한 정렬 기준으로 뉴스 요약 목록을 반환합니다."
     )
     public List<NewsDto.Response> getNewsList(
-            @Parameter(description = "Sort order (LATEST or POPULAR)")
+            @Parameter(description = "정렬 기준 (LATEST 또는 POPULAR)")
             @RequestParam(value = "sort", defaultValue = "LATEST") NewsSortType sortType) {
         return newsQueryUseCase.findAllNewsSummary(sortType);
     }
@@ -44,8 +44,8 @@ public class NewsController {
      */
     @GetMapping("/{id}")
     @Operation(
-            summary = "Get news detail",
-            description = "Returns a single news item with full details, likes, and discussions."
+            summary = "뉴스 상세 조회",
+            description = "뉴스 상세, 좋아요, 토론 정보를 포함해 단건을 반환합니다."
     )
     public NewsDto.DetailResponse getNewsDetail(@PathVariable("id") Long id) {
         return newsQueryUseCase.findNewsById(id);
@@ -56,8 +56,8 @@ public class NewsController {
      */
     @PostMapping("/{id}/like")
     @Operation(
-            summary = "Toggle news like",
-            description = "Toggles like for the authenticated user."
+            summary = "뉴스 좋아요 토글",
+            description = "인증된 사용자에 대해 좋아요를 토글합니다."
     )
     public void toggleLike(@PathVariable("id") Long id, @AuthenticatedUser Requester requester) {
         newsCommandUseCase.toggleNewsLike(id, requester.getUuid());
@@ -68,8 +68,8 @@ public class NewsController {
      */
     @GetMapping("/keywords/trending")
     @Operation(
-            summary = "Get daily keyword trends",
-            description = "Returns top 5 keywords aggregated over the last day."
+            summary = "일간 키워드 트렌드 조회",
+            description = "최근 1일 기준 상위 5개 키워드를 반환합니다."
     )
     public List<NewsDto.KeywordTrendResponse> getDailyKeywordTrends() {
         return newsQueryUseCase.findDailyTopKeywords();

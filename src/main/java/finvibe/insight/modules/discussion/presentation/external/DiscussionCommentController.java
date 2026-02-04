@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/discussions")
 @RequiredArgsConstructor
-@Tag(name = "Discussion Comments", description = "Discussion comment operations")
+@Tag(name = "토론 댓글", description = "토론 댓글 작업")
 public class DiscussionCommentController {
 
     private final DiscussionQueryUseCase discussionQueryUseCase;
@@ -27,8 +27,8 @@ public class DiscussionCommentController {
      */
     @GetMapping("/{discussionId}/comments")
     @Operation(
-            summary = "List comments",
-            description = "Returns comments for the given discussion."
+            summary = "댓글 목록 조회",
+            description = "지정한 토론의 댓글 목록을 반환합니다."
     )
     public List<DiscussionDto.CommentResponse> getComments(@PathVariable("discussionId") Long discussionId) {
         return discussionQueryUseCase.findCommentsByDiscussionId(discussionId);
@@ -39,15 +39,15 @@ public class DiscussionCommentController {
      */
     @PostMapping("/{discussionId}/comments")
     @Operation(
-            summary = "Add comment",
-            description = "Creates a comment for the authenticated user."
+            summary = "댓글 작성",
+            description = "인증된 사용자로 댓글을 생성합니다."
     )
     public DiscussionDto.CommentResponse addComment(
-            @Parameter(description = "Discussion id")
+            @Parameter(description = "토론 ID")
             @PathVariable("discussionId") Long discussionId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester,
-            @Parameter(description = "Comment content")
+            @Parameter(description = "댓글 내용")
             @RequestParam("content") String content) {
         return commentCommandUseCase.addComment(discussionId, requester.getUuid(), content);
     }
@@ -57,11 +57,11 @@ public class DiscussionCommentController {
      */
     @DeleteMapping("/comments/{commentId}")
     @Operation(
-            summary = "Delete comment",
-            description = "Deletes a comment for the authenticated user."
+            summary = "댓글 삭제",
+            description = "인증된 사용자의 댓글을 삭제합니다."
     )
     public void deleteComment(
-            @Parameter(description = "Comment id")
+            @Parameter(description = "댓글 ID")
             @PathVariable("commentId") Long commentId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
@@ -73,11 +73,11 @@ public class DiscussionCommentController {
      */
     @PostMapping("/comments/{commentId}/like")
     @Operation(
-            summary = "Toggle comment like",
-            description = "Toggles like for the authenticated user."
+            summary = "댓글 좋아요 토글",
+            description = "인증된 사용자에 대해 좋아요를 토글합니다."
     )
     public void toggleCommentLike(
-            @Parameter(description = "Comment id")
+            @Parameter(description = "댓글 ID")
             @PathVariable("commentId") Long commentId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
