@@ -1,9 +1,9 @@
 package finvibe.insight.modules.news.infra.scheduler;
 
 import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
+import finvibe.insight.modules.news.application.port.in.ThemeCommandUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,17 +13,16 @@ import org.springframework.stereotype.Component;
 public class NewsModuleScheduler {
 
     private final NewsCommandUseCase newsCommandUseCase;
-
-    @Value("${news.crawler.cron:0 0 7 * * *}")
-    private String newsSyncCron;
+    private final ThemeCommandUseCase themeCommandUseCase;
 
     /**
      * 지정된 스케줄에 맞춰 최신 뉴스를 수집하고 AI 분석을 수행합니다.
      */
-    @Scheduled(cron = "${news.crawler.cron:0 0 7 * * *}")
+    @Scheduled(cron = "${news.crawler.cron:0 0 0 * * *}", zone = "Asia/Seoul")
     public void syncLatestNews() {
         log.info("Starting scheduled news collection and analysis...");
         newsCommandUseCase.syncLatestNews();
+        themeCommandUseCase.generateTodayThemes();
         log.info("Finished scheduled news collection and analysis.");
     }
 

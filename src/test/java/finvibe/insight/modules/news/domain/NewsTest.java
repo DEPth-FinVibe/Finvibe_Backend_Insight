@@ -3,6 +3,8 @@ package finvibe.insight.modules.news.domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NewsTest {
@@ -10,7 +12,15 @@ class NewsTest {
     @Test
     @DisplayName("discussion count increments and never goes below zero")
     void discussionCountBounds() {
-        News news = News.create("title", "content", "analysis", EconomicSignal.NEUTRAL, NewsKeyword.ETF);
+        News news = News.create(
+                "title",
+                "content",
+                "analysis",
+                EconomicSignal.NEUTRAL,
+                NewsKeyword.ETF,
+                null,
+                LocalDateTime.now(),
+                "NAVER");
 
         news.incrementDiscussionCount();
         news.incrementDiscussionCount();
@@ -25,7 +35,15 @@ class NewsTest {
     @Test
     @DisplayName("syncDiscussionCount replaces current count")
     void syncDiscussionCount() {
-        News news = News.create("title", "content", "analysis", EconomicSignal.NEUTRAL, NewsKeyword.ETF);
+        News news = News.create(
+                "title",
+                "content",
+                "analysis",
+                EconomicSignal.NEUTRAL,
+                NewsKeyword.ETF,
+                null,
+                LocalDateTime.now(),
+                "NAVER");
 
         news.syncDiscussionCount(42);
         assertThat(news.getDiscussionCount()).isEqualTo(42);

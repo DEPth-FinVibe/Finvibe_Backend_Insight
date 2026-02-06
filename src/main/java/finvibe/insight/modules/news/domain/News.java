@@ -1,5 +1,6 @@
 package finvibe.insight.modules.news.domain;
 
+import finvibe.insight.shared.domain.Category;
 import finvibe.insight.shared.domain.TimeStampedBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,12 +8,16 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -40,14 +45,26 @@ public class News extends TimeStampedBaseEntity {
     @Enumerated(EnumType.STRING)
     private NewsKeyword keyword;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    private LocalDateTime publishedAt;
+
+    private String provider;
+
     public static News create(String title, String content, String analysis,
-            EconomicSignal economicSignal, NewsKeyword keyword) {
+            EconomicSignal economicSignal, NewsKeyword keyword, Category category,
+            LocalDateTime publishedAt, String provider) {
         return News.builder()
                 .title(title)
                 .content(content)
                 .analysis(analysis)
                 .economicSignal(economicSignal)
                 .keyword(keyword)
+                .category(category)
+                .publishedAt(publishedAt)
+                .provider(provider)
                 .build();
     }
 

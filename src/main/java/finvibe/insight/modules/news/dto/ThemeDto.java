@@ -1,0 +1,55 @@
+package finvibe.insight.modules.news.dto;
+
+import finvibe.insight.modules.news.domain.News;
+import finvibe.insight.modules.news.domain.ThemeDaily;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ThemeDto {
+
+    @Getter
+    public static class SummaryResponse {
+        private final Long categoryId;
+        private final String categoryName;
+        private final String analysis;
+
+        public SummaryResponse(ThemeDaily themeDaily) {
+            this.categoryId = themeDaily.getCategory().getId();
+            this.categoryName = themeDaily.getCategory().getName();
+            this.analysis = themeDaily.getAnalysis();
+        }
+    }
+
+    @Getter
+    public static class DetailResponse {
+        private final Long categoryId;
+        private final String categoryName;
+        private final String analysis;
+        private final List<NewsSummary> news;
+
+        public DetailResponse(ThemeDaily themeDaily, List<NewsSummary> news) {
+            this.categoryId = themeDaily.getCategory().getId();
+            this.categoryName = themeDaily.getCategory().getName();
+            this.analysis = themeDaily.getAnalysis();
+            this.news = news;
+        }
+    }
+
+    @Getter
+    public static class NewsSummary {
+        private final String title;
+        private final LocalDateTime publishedAt;
+        private final String provider;
+
+        public NewsSummary(News news) {
+            this.title = news.getTitle();
+            this.publishedAt = news.getPublishedAt();
+            this.provider = news.getProvider();
+        }
+    }
+}

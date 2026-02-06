@@ -1,19 +1,23 @@
 package finvibe.insight.modules.news.application;
 
 import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
+import finvibe.insight.modules.news.application.port.out.NewsAiAnalyzer;
 import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
-import finvibe.insight.modules.news.application.port.out.NewsSummarizer;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
+import finvibe.insight.shared.application.port.out.CategoryRepository;
+import finvibe.insight.shared.domain.Category;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,15 +26,22 @@ import java.util.UUID;
 @Transactional
 public class NewsCommandService implements NewsCommandUseCase {
 
+    private static final Long DEFAULT_CATEGORY_ID = 4L;
+    private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
+    private static final String DEFAULT_PROVIDER = "NAVER";
+
     private final NewsRepository newsRepository;
     private final NewsLikeRepository newsLikeRepository;
     private final NewsCrawler newsCrawler;
-    private final NewsSummarizer newsSummarizer;
+    private final NewsAiAnalyzer newsAiAnalyzer;
     private final NewsDiscussionPort newsDiscussionPort;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public void syncLatestNews() {
         List<NewsCrawler.RawNewsData> rawDataList = newsCrawler.fetchLatestRawNews();
+        List<Category> categories = categoryRepository.findAll();
+        Category defaultCategory = resolveDefaultCategory(categories);
 
         for (NewsCrawler.RawNewsData rawData : rawDataList) {
             if (newsRepository.existsByTitle(rawData.title())) {
@@ -38,14 +49,25 @@ public class NewsCommandService implements NewsCommandUseCase {
             }
 
             String analysisInput = "제목: " + rawData.title() + "\n요약: " + rawData.content();
-            NewsSummarizer.AnalysisResult analysis = newsSummarizer.analyzeAndSummarize(analysisInput);
+            NewsAiAnalyzer.AnalysisResult analysis = newsAiAnalyzer.analyze(analysisInput, categories);
+            Category category = resolveCategory(analysis.categoryId(), categories, defaultCategory);
+
+            LocalDateTime publishedAt = rawData.publishedAt() != null
+                    ? rawData.publishedAt()
+                    : LocalDateTime.now(KST_ZONE);
+            String provider = (rawData.provider() == null || rawData.provider().isBlank())
+                    ? DEFAULT_PROVIDER
+                    : rawData.provider();
 
             News news = News.create(
                     rawData.title(),
                     rawData.content(),
                     analysis.summary(),
                     analysis.signal(),
-                    analysis.keyword());
+                    analysis.keyword(),
+                    category,
+                    publishedAt,
+                    provider);
 
             newsRepository.save(news);
         }
@@ -79,5 +101,23 @@ public class NewsCommandService implements NewsCommandUseCase {
                                     .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
                             newsLikeRepository.save(NewsLike.create(news, userId));
                         });
+    }
+
+    private Category resolveDefaultCategory(List<Category> categories) {
+        return categories.stream()
+                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.getId()))
+                .findFirst()
+                .orElseGet(() -> categoryRepository.findById(DEFAULT_CATEGORY_ID)
+                        .orElse(null));
+    }
+
+    private Category resolveCategory(Long categoryId, List<Category> categories, Category fallback) {
+        if (categoryId == null) {
+            return fallback;
+        }
+        return categories.stream()
+                .filter(category -> category.getId().equals(categoryId))
+                .findFirst()
+                .orElse(fallback);
     }
 }

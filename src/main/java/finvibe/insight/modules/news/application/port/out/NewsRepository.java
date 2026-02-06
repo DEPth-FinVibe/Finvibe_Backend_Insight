@@ -16,4 +16,14 @@ public interface NewsRepository {
     boolean existsByTitle(String title);
 
     List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter);
+
+    List<News> findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(
+            Long categoryId,
+            LocalDateTime start,
+            LocalDateTime end);
+
+    List<NewsCategoryCount> countByCategoryIdForPeriod(LocalDateTime start, LocalDateTime end);
+
+    record NewsCategoryCount(Long categoryId, long count) {
+    }
 }

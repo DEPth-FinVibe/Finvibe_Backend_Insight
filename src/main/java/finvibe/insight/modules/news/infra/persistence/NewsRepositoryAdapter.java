@@ -39,4 +39,22 @@ public class NewsRepositoryAdapter implements NewsRepository {
     public List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter) {
         return newsJpaRepository.findAllByCreatedAtAfter(createdAfter);
     }
+
+    @Override
+    public List<News> findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(
+            Long categoryId,
+            LocalDateTime start,
+            LocalDateTime end) {
+        return newsJpaRepository.findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(
+                categoryId,
+                start,
+                end);
+    }
+
+    @Override
+    public List<NewsCategoryCount> countByCategoryIdForPeriod(LocalDateTime start, LocalDateTime end) {
+        return newsJpaRepository.countByCategoryIdForPeriod(start, end).stream()
+                .map(row -> new NewsCategoryCount(row.getCategoryId(), row.getCount()))
+                .toList();
+    }
 }

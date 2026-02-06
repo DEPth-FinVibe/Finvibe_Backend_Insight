@@ -7,19 +7,21 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class NewsPromptProvider {
+public class NewsAiPromptProvider {
 
-    private static final String SYSTEM_PROMPT_PATH = "classpath:prompts/news-analysis-system.txt";
-    private static final String USER_PROMPT_PATH = "classpath:prompts/news-analysis-user.txt";
+    private static final String SYSTEM_PROMPT_PATH = "classpath:prompts/news-ai-analysis-system.txt";
+    private static final String USER_PROMPT_PATH = "classpath:prompts/news-ai-analysis-user.txt";
 
     private final ResourceLoader resourceLoader;
 
-    public NewsPromptProvider(ResourceLoader resourceLoader) {
+    public NewsAiPromptProvider(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
 
-    public String getSystemPrompt(String keywordList) {
-        return loadPrompt(SYSTEM_PROMPT_PATH).replace("{{keyword_list}}", keywordList);
+    public String getSystemPrompt(String categoryList, String keywordList) {
+        return loadPrompt(SYSTEM_PROMPT_PATH)
+                .replace("{{category_list}}", categoryList)
+                .replace("{{keyword_list}}", keywordList);
     }
 
     public String getUserPrompt(String content) {

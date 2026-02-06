@@ -4,12 +4,14 @@ import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
-import finvibe.insight.modules.news.application.port.out.NewsSummarizer;
+import finvibe.insight.modules.news.application.port.out.NewsAiAnalyzer;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsKeyword;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
+import finvibe.insight.shared.application.port.out.CategoryRepository;
+import finvibe.insight.shared.domain.Category;
 import finvibe.insight.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,10 +44,13 @@ class NewsCommandServiceTest {
     private NewsCrawler newsCrawler;
 
     @Mock
-    private NewsSummarizer newsSummarizer;
+    private NewsAiAnalyzer newsAiAnalyzer;
 
     @Mock
     private NewsDiscussionPort newsDiscussionPort;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private NewsCommandService newsCommandService;
@@ -53,15 +59,19 @@ class NewsCommandServiceTest {
     @DisplayName("syncLatestNews saves only new titles and uses summarizer result")
     void syncLatestNewsSavesNewItems() {
         List<NewsCrawler.RawNewsData> rawData = List.of(
-                new NewsCrawler.RawNewsData("title-a", "content-a"),
-                new NewsCrawler.RawNewsData("title-b", "content-b")
+                new NewsCrawler.RawNewsData("title-a", "content-a", LocalDateTime.now(), "NAVER"),
+                new NewsCrawler.RawNewsData("title-b", "content-b", LocalDateTime.now(), "NAVER")
         );
         when(newsCrawler.fetchLatestRawNews()).thenReturn(rawData);
         when(newsRepository.existsByTitle("title-a")).thenReturn(true);
         when(newsRepository.existsByTitle("title-b")).thenReturn(false);
-        when(newsSummarizer.analyzeAndSummarize(anyString()))
-                .thenReturn(new NewsSummarizer.AnalysisResult(
-                        "summary", EconomicSignal.POSITIVE, NewsKeyword.AI));
+        long categoryId = 1L;
+        Category category = mock(Category.class);
+        when(category.getId()).thenReturn(categoryId);
+        when(categoryRepository.findAll()).thenReturn(List.of(category));
+        when(newsAiAnalyzer.analyze(anyString(), anyList()))
+                .thenReturn(new NewsAiAnalyzer.AnalysisResult(
+                        "summary", EconomicSignal.POSITIVE, NewsKeyword.AI, categoryId));
 
         newsCommandService.syncLatestNews();
 
