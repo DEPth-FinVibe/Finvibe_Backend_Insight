@@ -1,6 +1,7 @@
 package finvibe.insight.modules.news.application;
 
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
+import finvibe.insight.modules.news.application.port.out.MarketCategoryChangeRatePort;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.application.port.in.ThemeQueryUseCase;
 import finvibe.insight.modules.news.application.port.out.ThemeDailyRepository;
@@ -26,12 +27,16 @@ public class ThemeQueryService implements ThemeQueryUseCase {
 
     private final ThemeDailyRepository themeDailyRepository;
     private final NewsRepository newsRepository;
+    private final MarketCategoryChangeRatePort marketCategoryChangeRatePort;
 
     @Override
     public List<ThemeDto.SummaryResponse> findTodayThemes() {
         LocalDate today = LocalDate.now(KST_ZONE);
         return themeDailyRepository.findAllByThemeDate(today).stream()
-                .map(ThemeDto.SummaryResponse::new)
+                .map(themeDaily -> new ThemeDto.SummaryResponse(
+                        themeDaily,
+                        marketCategoryChangeRatePort.fetchAverageChangePct(
+                                themeDaily.getCategory().getId())))
                 .toList();
     }
 

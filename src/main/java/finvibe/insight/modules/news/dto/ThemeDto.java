@@ -16,12 +16,12 @@ public class ThemeDto {
     public static class SummaryResponse {
         private final Long categoryId;
         private final String categoryName;
-        private final String analysis;
+        private final java.math.BigDecimal averageChangePct;
 
-        public SummaryResponse(ThemeDaily themeDaily) {
+        public SummaryResponse(ThemeDaily themeDaily, java.math.BigDecimal averageChangePct) {
             this.categoryId = themeDaily.getCategory().getId();
             this.categoryName = themeDaily.getCategory().getName();
-            this.analysis = themeDaily.getAnalysis();
+            this.averageChangePct = averageChangePct;
         }
     }
 

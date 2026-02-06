@@ -21,6 +21,10 @@ discussion:
   service:
     url: http://localhost:8080
 
+market:
+  service:
+    url: http://finvibe.space
+
 springdoc:
   swagger-ui:
     path: /doc/user/swagger-ui.html

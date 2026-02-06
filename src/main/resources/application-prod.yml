@@ -40,3 +40,7 @@ springdoc:
 security:
   jwt:
     hmac-secret: ${JWT_SECRET}
+
+market:
+  service:
+    url: ${MARKET_SERVICE_URL:http://finvibe.space}
