@@ -10,8 +10,8 @@ spring:
 
 news:
   crawler:
-    max-items: 20
-    cron: "0 0 0 * * *"
+    max-items: 50
+    cron: "0 15 0 * * *"
 
 gemini:
   api-key: ${GEMINI_API_KEY:}
