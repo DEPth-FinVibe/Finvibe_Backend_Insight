@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "gemini.api-key")
+@ConditionalOnProperty(name = "langchain4j.google-ai-gemini.chat-model.api-key")
 public class NewsAiAnalyzerImpl implements NewsAiAnalyzer {
 
     private static final Long DEFAULT_CATEGORY_ID = 4L;

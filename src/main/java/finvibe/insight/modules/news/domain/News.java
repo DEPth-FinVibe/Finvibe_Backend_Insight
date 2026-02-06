@@ -2,6 +2,7 @@ package finvibe.insight.modules.news.domain;
 
 import finvibe.insight.shared.domain.Category;
 import finvibe.insight.shared.domain.TimeStampedBaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -35,8 +37,12 @@ public class News extends TimeStampedBaseEntity {
 
     private String title;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String analysis;
 
     @Enumerated(EnumType.STRING)

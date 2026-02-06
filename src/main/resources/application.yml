@@ -11,11 +11,13 @@ spring:
 news:
   crawler:
     max-items: 50
-    cron: "0 0 15 * * *"
+    cron: "0 0 0 * * *"
 
-gemini:
-  api-key: ${GEMINI_API_KEY:}
-  model: gemini-1.5-flash
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: ${GEMINI_API_KEY:}
+      model-name: gemini-1.5-flash
 
 discussion:
   service:

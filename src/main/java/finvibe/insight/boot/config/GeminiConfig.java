@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "gemini.api-key")
+@ConditionalOnProperty(name = "langchain4j.google-ai-gemini.chat-model.api-key")
 public class GeminiConfig {
 
-    @Value("${gemini.api-key}")
+    @Value("${langchain4j.google-ai-gemini.chat-model.api-key}")
     private String apiKey;
 
-    @Value("${gemini.model}")
+    @Value("${langchain4j.google-ai-gemini.chat-model.model-name:gemini-1.5-flash}")
     private String modelName;
 
     @Bean
