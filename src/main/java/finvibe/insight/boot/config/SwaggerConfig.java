@@ -48,14 +48,6 @@ public class SwaggerConfig {
                                 .build();
         }
 
-        @Bean
-        public GroupedOpenApi internalApi() {
-                return GroupedOpenApi.builder()
-                                .group("internal")
-                                .pathsToMatch("/internal/**")
-                                .build();
-        }
-
         private OpenApiCustomizer prefixPaths(String prefix) {
                 return openApi -> {
                         if (openApi.getPaths() == null || openApi.getPaths().isEmpty()) {
