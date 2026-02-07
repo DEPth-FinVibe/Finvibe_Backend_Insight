@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/themes")
+@RequestMapping("/themes")
 @RequiredArgsConstructor
 @Tag(name = "테마", description = "오늘의 테마 분석 및 뉴스")
 public class ThemeController {

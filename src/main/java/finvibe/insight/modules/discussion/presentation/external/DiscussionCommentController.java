@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/discussions")
+@RequestMapping("/discussions")
 @RequiredArgsConstructor
 @Tag(name = "토론 댓글", description = "토론 댓글 작업")
 public class DiscussionCommentController {

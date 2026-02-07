@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/discussions")
+@RequestMapping("/discussions")
 @RequiredArgsConstructor
 @Tag(name = "토론", description = "토론 스레드")
 public class DiscussionController {

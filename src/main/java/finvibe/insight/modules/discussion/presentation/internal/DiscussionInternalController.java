@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/internal/discussions")
+@RequestMapping("/internal/discussions")
 @RequiredArgsConstructor
 @Tag(name = "토론 내부", description = "내부 토론 API")
 public class DiscussionInternalController {
