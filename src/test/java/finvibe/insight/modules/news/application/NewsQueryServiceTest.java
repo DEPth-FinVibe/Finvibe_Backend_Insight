@@ -74,6 +74,21 @@ class NewsQueryServiceTest {
     }
 
     @Test
+    @DisplayName("findAllNewsSummary places null createdAt last when LATEST")
+    void findAllNewsSummaryLatestWithNullCreatedAt() {
+        LocalDateTime newer = LocalDateTime.now();
+        News nullCreatedAt = News.builder().id(1L).title("null-date").build();
+        News dated = News.builder().id(2L).title("dated").createdAt(newer).build();
+        when(newsRepository.findAll()).thenReturn(List.of(nullCreatedAt, dated));
+
+        List<NewsDto.Response> results = newsQueryService.findAllNewsSummary(NewsSortType.LATEST);
+
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getId()).isEqualTo(2L);
+        assertThat(results.get(1).getId()).isEqualTo(1L);
+    }
+
+    @Test
     @DisplayName("findNewsById returns detail response with discussions")
     void findNewsByIdReturnsDetail() {
         News news = News.builder()

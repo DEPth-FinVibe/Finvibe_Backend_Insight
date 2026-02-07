@@ -44,13 +44,15 @@ public class NewsQueryService implements NewsQueryUseCase {
                             news -> newsLikeRepository.countByNewsId(news.getId())));
 
             return newsList.stream()
-                    .sorted(Comparator.comparing((News news) -> likeCountMap.get(news.getId())).reversed())
+                    .sorted(Comparator.comparing((News news) -> likeCountMap.getOrDefault(news.getId(), 0L)).reversed())
                     .map(NewsDto.Response::new)
                     .toList();
         } else {
             // 최신순: 생성일자로 정렬 (내림차순)
             return newsList.stream()
-                    .sorted(Comparator.comparing(News::getCreatedAt).reversed())
+                    .sorted(Comparator.comparing(
+                            News::getCreatedAt,
+                            Comparator.nullsLast(Comparator.reverseOrder())))
                     .map(NewsDto.Response::new)
                     .toList();
         }
