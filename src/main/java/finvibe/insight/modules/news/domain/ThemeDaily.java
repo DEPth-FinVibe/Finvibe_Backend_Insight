@@ -1,5 +1,6 @@
 package finvibe.insight.modules.news.domain;
 
+import finvibe.insight.shared.domain.TimeStampedBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class ThemeDaily {
+    public class ThemeDaily extends TimeStampedBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

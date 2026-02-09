@@ -16,15 +16,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/themes")
 @RequiredArgsConstructor
-@Tag(name = "테마", description = "오늘의 테마 분석 및 뉴스")
+@Tag(name = "테마", description = "최신 테마 분석 및 뉴스")
 public class ThemeController {
 
     private final ThemeQueryUseCase themeQueryUseCase;
 
     @GetMapping("/today")
     @Operation(
-            summary = "오늘의 테마 목록 조회",
-            description = "오늘 선정된 테마 8개 목록을 반환합니다."
+            summary = "최신 테마 목록 조회",
+            description = "카테고리별 최신 테마 분석 목록을 반환합니다."
     )
     public List<ThemeDto.SummaryResponse> getTodayThemes() {
         return themeQueryUseCase.findTodayThemes();
@@ -32,8 +32,8 @@ public class ThemeController {
 
     @GetMapping("/today/{categoryId}")
     @Operation(
-            summary = "오늘의 테마 상세 조회",
-            description = "카테고리별 테마 분석과 관련 뉴스 목록을 반환합니다."
+            summary = "최신 테마 상세 조회",
+            description = "카테고리별 최신 테마 분석과 해당 테마 날짜의 관련 뉴스 목록을 반환합니다."
     )
     public ThemeDto.DetailResponse getTodayThemeDetail(
             @Parameter(description = "카테고리 ID")

@@ -16,15 +16,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ThemeCommandService implements ThemeCommandUseCase {
 
-    private static final int THEME_LIMIT = 8;
     private static final int ANALYSIS_NEWS_LIMIT = 20;
     private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
 
@@ -39,26 +36,13 @@ public class ThemeCommandService implements ThemeCommandUseCase {
         LocalDateTime start = today.atStartOfDay();
         LocalDateTime end = start.plusDays(1).minusNanos(1);
 
-        List<NewsRepository.NewsCategoryCount> counts =
-                newsRepository.countByCategoryIdForPeriod(start, end);
-        List<Long> topCategoryIds = counts.stream()
-                .limit(THEME_LIMIT)
-                .map(NewsRepository.NewsCategoryCount::categoryId)
-                .toList();
-
-        Map<Long, CategoryInfo> categoryMap = categoryCatalogPort.getAll().stream()
-                .collect(Collectors.toMap(CategoryInfo::id, category -> category));
+        List<CategoryInfo> categories = categoryCatalogPort.getAll();
 
         themeDailyRepository.deleteAllByThemeDate(today);
 
-        for (Long categoryId : topCategoryIds) {
-            CategoryInfo category = categoryMap.get(categoryId);
-            if (category == null) {
-                continue;
-            }
-
+        for (CategoryInfo category : categories) {
             List<String> titles = newsRepository
-                    .findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(categoryId, start, end)
+                    .findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(category.id(), start, end)
                     .stream()
                     .map(News::getTitle)
                     .limit(ANALYSIS_NEWS_LIMIT)

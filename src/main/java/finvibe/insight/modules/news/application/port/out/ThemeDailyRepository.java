@@ -13,5 +13,9 @@ public interface ThemeDailyRepository {
 
     Optional<ThemeDaily> findByThemeDateAndCategoryId(LocalDate themeDate, Long categoryId);
 
+    List<Long> findDistinctCategoryIds();
+
+    Optional<ThemeDaily> findLatestByCategoryId(Long categoryId);
+
     void deleteAllByThemeDate(LocalDate themeDate);
 }

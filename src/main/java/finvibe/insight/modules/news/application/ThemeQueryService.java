@@ -2,7 +2,6 @@ package finvibe.insight.modules.news.application;
 
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
 import finvibe.insight.modules.news.application.port.out.MarketCategoryChangeRatePort;
-import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.application.port.in.ThemeQueryUseCase;
 import finvibe.insight.modules.news.application.port.out.ThemeDailyRepository;
 import finvibe.insight.modules.news.domain.ThemeDaily;
@@ -13,17 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ThemeQueryService implements ThemeQueryUseCase {
-
-    private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
 
     private final ThemeDailyRepository themeDailyRepository;
     private final NewsRepository newsRepository;
@@ -31,8 +27,9 @@ public class ThemeQueryService implements ThemeQueryUseCase {
 
     @Override
     public List<ThemeDto.SummaryResponse> findTodayThemes() {
-        LocalDate today = LocalDate.now(KST_ZONE);
-        return themeDailyRepository.findAllByThemeDate(today).stream()
+        return themeDailyRepository.findDistinctCategoryIds().stream()
+                .map(themeDailyRepository::findLatestByCategoryId)
+                .flatMap(Optional::stream)
                 .map(themeDaily -> new ThemeDto.SummaryResponse(
                         themeDaily,
                         marketCategoryChangeRatePort.fetchAverageChangePct(
@@ -42,14 +39,13 @@ public class ThemeQueryService implements ThemeQueryUseCase {
 
     @Override
     public ThemeDto.DetailResponse findTodayThemeDetail(Long categoryId) {
-        LocalDate today = LocalDate.now(KST_ZONE);
-        ThemeDaily themeDaily = themeDailyRepository.findByThemeDateAndCategoryId(today, categoryId)
+        ThemeDaily themeDaily = themeDailyRepository.findLatestByCategoryId(categoryId)
                 .orElseThrow(() -> new DomainException(ThemeErrorCode.THEME_NOT_FOUND));
 
-        LocalDateTime start = today.atStartOfDay();
-        LocalDateTime end = start.plusDays(1).minusNanos(1);
+        LocalDateTime themeDateStart = themeDaily.getThemeDate().atStartOfDay();
+        LocalDateTime themeDateEnd = themeDateStart.plusDays(1).minusNanos(1);
         List<ThemeDto.NewsSummary> news = newsRepository
-                .findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(categoryId, start, end)
+                .findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(categoryId, themeDateStart, themeDateEnd)
                 .stream()
                 .map(ThemeDto.NewsSummary::new)
                 .toList();

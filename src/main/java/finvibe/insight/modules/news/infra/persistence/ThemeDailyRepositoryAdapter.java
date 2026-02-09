@@ -31,6 +31,16 @@ public class ThemeDailyRepositoryAdapter implements ThemeDailyRepository {
     }
 
     @Override
+    public List<Long> findDistinctCategoryIds() {
+        return themeDailyJpaRepository.findDistinctCategoryIds();
+    }
+
+    @Override
+    public Optional<ThemeDaily> findLatestByCategoryId(Long categoryId) {
+        return themeDailyJpaRepository.findTopByCategoryIdOrderByCreatedAtDescIdDesc(categoryId);
+    }
+
+    @Override
     public void deleteAllByThemeDate(LocalDate themeDate) {
         themeDailyJpaRepository.deleteAllByThemeDate(themeDate);
     }
