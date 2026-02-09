@@ -3,7 +3,7 @@ package finvibe.insight.boot.config;
 import finvibe.insight.modules.news.application.port.out.NewsAiAnalyzer;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.NewsKeyword;
-import finvibe.insight.shared.domain.Category;
+import finvibe.insight.shared.domain.CategoryInfo;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,11 +25,11 @@ public class NewsAiAnalyzerFallbackConfig {
                 resolveCategoryId(categories));
     }
 
-    private Long resolveCategoryId(List<Category> categories) {
+    private Long resolveCategoryId(List<CategoryInfo> categories) {
         return categories.stream()
-                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.getId()))
-                .map(Category::getId)
+                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.id()))
+                .map(CategoryInfo::id)
                 .findFirst()
-                .orElse(categories.isEmpty() ? null : categories.get(0).getId());
+                .orElse(categories.isEmpty() ? null : categories.get(0).id());
     }
 }

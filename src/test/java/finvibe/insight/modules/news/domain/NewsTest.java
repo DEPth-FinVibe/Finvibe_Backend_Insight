@@ -19,6 +19,7 @@ class NewsTest {
                 EconomicSignal.NEUTRAL,
                 NewsKeyword.ETF,
                 null,
+                null,
                 LocalDateTime.now(),
                 "NAVER");
 
@@ -41,6 +42,7 @@ class NewsTest {
                 "analysis",
                 EconomicSignal.NEUTRAL,
                 NewsKeyword.ETF,
+                null,
                 null,
                 LocalDateTime.now(),
                 "NAVER");

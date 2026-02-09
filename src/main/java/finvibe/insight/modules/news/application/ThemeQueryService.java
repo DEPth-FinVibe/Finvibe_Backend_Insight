@@ -36,7 +36,7 @@ public class ThemeQueryService implements ThemeQueryUseCase {
                 .map(themeDaily -> new ThemeDto.SummaryResponse(
                         themeDaily,
                         marketCategoryChangeRatePort.fetchAverageChangePct(
-                                themeDaily.getCategory().getId())))
+                                themeDaily.getCategoryId())))
                 .toList();
     }
 

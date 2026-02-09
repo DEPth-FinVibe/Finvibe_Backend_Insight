@@ -11,7 +11,7 @@ import dev.langchain4j.model.chat.request.json.JsonObjectSchema;
 import dev.langchain4j.model.chat.request.json.JsonSchema;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import finvibe.insight.modules.news.application.port.out.ThemeAnalyzer;
-import finvibe.insight.shared.domain.Category;
+import finvibe.insight.shared.domain.CategoryInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,11 +40,11 @@ public class ThemeAnalyzerImpl implements ThemeAnalyzer {
     private final ObjectMapper objectMapper;
 
     @Override
-    public String analyze(Category category, List<String> newsTitles) {
+    public String analyze(CategoryInfo category, List<String> newsTitles) {
         try {
             String joinedTitles = String.join("\n", newsTitles);
             String systemMessage = promptProvider.getSystemPrompt();
-            String userMessage = promptProvider.getUserPrompt(category.getName(), joinedTitles);
+            String userMessage = promptProvider.getUserPrompt(category.name(), joinedTitles);
 
             ChatRequest request = ChatRequest.builder()
                     .messages(
@@ -64,8 +64,8 @@ public class ThemeAnalyzerImpl implements ThemeAnalyzer {
         }
     }
 
-    private String fallbackAnalysis(Category category) {
-        return category.getName() + " 이슈 요약";
+    private String fallbackAnalysis(CategoryInfo category) {
+        return category.name() + " 이슈 요약";
     }
 
     private record ThemeAnalysisResult(String analysis) {

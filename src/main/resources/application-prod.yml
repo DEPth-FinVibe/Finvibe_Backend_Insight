@@ -44,6 +44,9 @@ security:
 market:
   service:
     url: ${MARKET_SERVICE_URL:http://finvibe.space}
+  category:
+    service:
+      url: ${MARKET_CATEGORY_SERVICE_URL:http://investment}
 
 langchain4j:
   google-ai-gemini:

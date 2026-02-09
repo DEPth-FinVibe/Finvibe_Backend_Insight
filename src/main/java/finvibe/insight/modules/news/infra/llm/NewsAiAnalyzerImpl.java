@@ -13,7 +13,7 @@ import dev.langchain4j.model.chat.response.ChatResponse;
 import finvibe.insight.modules.news.application.port.out.NewsAiAnalyzer;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.NewsKeyword;
-import finvibe.insight.shared.domain.Category;
+import finvibe.insight.shared.domain.CategoryInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,7 +49,7 @@ public class NewsAiAnalyzerImpl implements NewsAiAnalyzer {
     private final ObjectMapper objectMapper;
 
     @Override
-    public AnalysisResult analyze(String content, List<Category> categories) {
+    public AnalysisResult analyze(String content, List<CategoryInfo> categories) {
         for (int attempt = 0; attempt <= MAX_RETRY_COUNT; attempt++) {
             try {
                 return requestAnalysis(content, categories);
@@ -63,12 +63,12 @@ public class NewsAiAnalyzerImpl implements NewsAiAnalyzer {
         return fallbackResult(categories);
     }
 
-    private AnalysisResult requestAnalysis(String content, List<Category> categories) throws Exception {
+    private AnalysisResult requestAnalysis(String content, List<CategoryInfo> categories) throws Exception {
         String keywordList = Arrays.stream(NewsKeyword.values())
                 .map(k -> String.format("%s(%s)", k.name(), k.getLabel()))
                 .collect(Collectors.joining(", "));
         String categoryList = categories.stream()
-                .map(category -> category.getId() + ":" + category.getName())
+                .map(category -> category.id() + ":" + category.name())
                 .collect(Collectors.joining(", "));
 
         String systemMessage = promptProvider.getSystemPrompt(categoryList, keywordList);
@@ -93,7 +93,7 @@ public class NewsAiAnalyzerImpl implements NewsAiAnalyzer {
                 categoryId);
     }
 
-    private AnalysisResult fallbackResult(List<Category> categories) {
+    private AnalysisResult fallbackResult(List<CategoryInfo> categories) {
         return new AnalysisResult(
                 "뉴스 분석에 실패하여 요약 정보를 제공할 수 없습니다.",
                 EconomicSignal.NEUTRAL,
@@ -101,20 +101,20 @@ public class NewsAiAnalyzerImpl implements NewsAiAnalyzer {
                 fallbackCategoryId(categories));
     }
 
-    private Long resolveCategoryId(Long categoryId, List<Category> categories) {
+    private Long resolveCategoryId(Long categoryId, List<CategoryInfo> categories) {
         if (categoryId == null) {
             return fallbackCategoryId(categories);
         }
-        boolean exists = categories.stream().anyMatch(category -> category.getId().equals(categoryId));
+        boolean exists = categories.stream().anyMatch(category -> category.id().equals(categoryId));
         return exists ? categoryId : fallbackCategoryId(categories);
     }
 
-    private Long fallbackCategoryId(List<Category> categories) {
+    private Long fallbackCategoryId(List<CategoryInfo> categories) {
         return categories.stream()
-                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.getId()))
-                .map(Category::getId)
+                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.id()))
+                .map(CategoryInfo::id)
                 .findFirst()
-                .orElse(categories.isEmpty() ? null : categories.get(0).getId());
+                .orElse(categories.isEmpty() ? null : categories.get(0).id());
     }
 
     private record RawAnalysis(String summary, String signal, String keyword, Long categoryId) {

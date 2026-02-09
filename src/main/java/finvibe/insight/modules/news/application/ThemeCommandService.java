@@ -6,8 +6,8 @@ import finvibe.insight.modules.news.application.port.in.ThemeCommandUseCase;
 import finvibe.insight.modules.news.application.port.out.ThemeAnalyzer;
 import finvibe.insight.modules.news.application.port.out.ThemeDailyRepository;
 import finvibe.insight.modules.news.domain.ThemeDaily;
-import finvibe.insight.shared.application.port.out.CategoryRepository;
-import finvibe.insight.shared.domain.Category;
+import finvibe.insight.modules.news.application.port.out.CategoryCatalogPort;
+import finvibe.insight.shared.domain.CategoryInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class ThemeCommandService implements ThemeCommandUseCase {
     private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
 
     private final NewsRepository newsRepository;
-    private final CategoryRepository categoryRepository;
+    private final CategoryCatalogPort categoryCatalogPort;
     private final ThemeAnalyzer themeAnalyzer;
     private final ThemeDailyRepository themeDailyRepository;
 
@@ -46,13 +46,13 @@ public class ThemeCommandService implements ThemeCommandUseCase {
                 .map(NewsRepository.NewsCategoryCount::categoryId)
                 .toList();
 
-        Map<Long, Category> categoryMap = categoryRepository.findAll().stream()
-                .collect(Collectors.toMap(Category::getId, category -> category));
+        Map<Long, CategoryInfo> categoryMap = categoryCatalogPort.getAll().stream()
+                .collect(Collectors.toMap(CategoryInfo::id, category -> category));
 
         themeDailyRepository.deleteAllByThemeDate(today);
 
         for (Long categoryId : topCategoryIds) {
-            Category category = categoryMap.get(categoryId);
+            CategoryInfo category = categoryMap.get(categoryId);
             if (category == null) {
                 continue;
             }
@@ -65,7 +65,7 @@ public class ThemeCommandService implements ThemeCommandUseCase {
                     .toList();
 
             String analysis = themeAnalyzer.analyze(category, titles);
-            ThemeDaily themeDaily = ThemeDaily.create(today, category, analysis);
+            ThemeDaily themeDaily = ThemeDaily.create(today, category.id(), category.name(), analysis);
             themeDailyRepository.save(themeDaily);
         }
     }

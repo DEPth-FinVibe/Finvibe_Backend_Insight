@@ -6,11 +6,11 @@ import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.application.port.out.NewsCrawler;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
+import finvibe.insight.modules.news.application.port.out.CategoryCatalogPort;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
-import finvibe.insight.shared.application.port.out.CategoryRepository;
-import finvibe.insight.shared.domain.Category;
+import finvibe.insight.shared.domain.CategoryInfo;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,13 +35,16 @@ public class NewsCommandService implements NewsCommandUseCase {
     private final NewsCrawler newsCrawler;
     private final NewsAiAnalyzer newsAiAnalyzer;
     private final NewsDiscussionPort newsDiscussionPort;
-    private final CategoryRepository categoryRepository;
+    private final CategoryCatalogPort categoryCatalogPort;
 
     @Override
     public void syncLatestNews() {
         List<NewsCrawler.RawNewsData> rawDataList = newsCrawler.fetchLatestRawNews();
-        List<Category> categories = categoryRepository.findAll();
-        Category defaultCategory = resolveDefaultCategory(categories);
+        List<CategoryInfo> categories = categoryCatalogPort.getAll();
+        if (categories.isEmpty()) {
+            throw new IllegalStateException("No categories available from market catalog");
+        }
+        CategoryInfo defaultCategory = resolveDefaultCategory(categories);
 
         for (NewsCrawler.RawNewsData rawData : rawDataList) {
             if (newsRepository.existsByTitle(rawData.title())) {
@@ -50,7 +53,7 @@ public class NewsCommandService implements NewsCommandUseCase {
 
             String analysisInput = "제목: " + rawData.title() + "\n요약: " + rawData.content();
             NewsAiAnalyzer.AnalysisResult analysis = newsAiAnalyzer.analyze(analysisInput, categories);
-            Category category = resolveCategory(analysis.categoryId(), categories, defaultCategory);
+            CategoryInfo category = resolveCategory(analysis.categoryId(), categories, defaultCategory);
 
             LocalDateTime publishedAt = rawData.publishedAt() != null
                     ? rawData.publishedAt()
@@ -65,7 +68,8 @@ public class NewsCommandService implements NewsCommandUseCase {
                     analysis.summary(),
                     analysis.signal(),
                     analysis.keyword(),
-                    category,
+                    category.id(),
+                    category.name(),
                     publishedAt,
                     provider);
 
@@ -103,20 +107,19 @@ public class NewsCommandService implements NewsCommandUseCase {
                         });
     }
 
-    private Category resolveDefaultCategory(List<Category> categories) {
+    private CategoryInfo resolveDefaultCategory(List<CategoryInfo> categories) {
         return categories.stream()
-                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.getId()))
+                .filter(category -> DEFAULT_CATEGORY_ID.equals(category.id()))
                 .findFirst()
-                .orElseGet(() -> categoryRepository.findById(DEFAULT_CATEGORY_ID)
-                        .orElse(null));
+                .orElse(categories.get(0));
     }
 
-    private Category resolveCategory(Long categoryId, List<Category> categories, Category fallback) {
+    private CategoryInfo resolveCategory(Long categoryId, List<CategoryInfo> categories, CategoryInfo fallback) {
         if (categoryId == null) {
             return fallback;
         }
         return categories.stream()
-                .filter(category -> category.getId().equals(categoryId))
+                .filter(category -> category.id().equals(categoryId))
                 .findFirst()
                 .orElse(fallback);
     }

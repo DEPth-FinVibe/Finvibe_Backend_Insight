@@ -40,6 +40,9 @@ spring:
       depth.finvibe.investment: debug
 
 market:
+  category:
+    service:
+      url: ${MARKET_CATEGORY_SERVICE_URL:http://investment}
   kis:
     base-url: ${KIS_BASE_URL:https://openapi.koreainvestment.com:9443}
     user-id: ${KIS_USER_ID}

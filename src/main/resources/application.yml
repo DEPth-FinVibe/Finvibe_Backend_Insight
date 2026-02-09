@@ -26,6 +26,9 @@ discussion:
 market:
   service:
     url: http://finvibe.space
+  category:
+    service:
+      url: http://investment
 
 springdoc:
   swagger-ui:

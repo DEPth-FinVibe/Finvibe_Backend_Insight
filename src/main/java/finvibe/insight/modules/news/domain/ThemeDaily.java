@@ -1,12 +1,10 @@
 package finvibe.insight.modules.news.domain;
 
-import finvibe.insight.shared.domain.Category;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,16 +28,19 @@ public class ThemeDaily {
 
     private LocalDate themeDate;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(name = "category_id")
+    private Long categoryId;
+
+    @Column(name = "category_name")
+    private String categoryName;
 
     private String analysis;
 
-    public static ThemeDaily create(LocalDate themeDate, Category category, String analysis) {
+    public static ThemeDaily create(LocalDate themeDate, Long categoryId, String categoryName, String analysis) {
         return ThemeDaily.builder()
                 .themeDate(themeDate)
-                .category(category)
+                .categoryId(categoryId)
+                .categoryName(categoryName)
                 .analysis(analysis)
                 .build();
     }

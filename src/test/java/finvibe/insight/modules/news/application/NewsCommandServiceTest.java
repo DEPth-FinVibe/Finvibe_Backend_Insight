@@ -5,13 +5,13 @@ import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
 import finvibe.insight.modules.news.application.port.out.NewsAiAnalyzer;
+import finvibe.insight.modules.news.application.port.out.CategoryCatalogPort;
 import finvibe.insight.modules.news.domain.EconomicSignal;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsKeyword;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
-import finvibe.insight.shared.application.port.out.CategoryRepository;
-import finvibe.insight.shared.domain.Category;
+import finvibe.insight.shared.domain.CategoryInfo;
 import finvibe.insight.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class NewsCommandServiceTest {
     private NewsDiscussionPort newsDiscussionPort;
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private CategoryCatalogPort categoryCatalogPort;
 
     @InjectMocks
     private NewsCommandService newsCommandService;
@@ -66,9 +66,8 @@ class NewsCommandServiceTest {
         when(newsRepository.existsByTitle("title-a")).thenReturn(true);
         when(newsRepository.existsByTitle("title-b")).thenReturn(false);
         long categoryId = 1L;
-        Category category = mock(Category.class);
-        when(category.getId()).thenReturn(categoryId);
-        when(categoryRepository.findAll()).thenReturn(List.of(category));
+        CategoryInfo category = new CategoryInfo(categoryId, "테크");
+        when(categoryCatalogPort.getAll()).thenReturn(List.of(category));
         when(newsAiAnalyzer.analyze(anyString(), anyList()))
                 .thenReturn(new NewsAiAnalyzer.AnalysisResult(
                         "summary", EconomicSignal.POSITIVE, NewsKeyword.AI, categoryId));
@@ -81,6 +80,8 @@ class NewsCommandServiceTest {
         assertThat(saved.getTitle()).isEqualTo("title-b");
         assertThat(saved.getEconomicSignal()).isEqualTo(EconomicSignal.POSITIVE);
         assertThat(saved.getKeyword()).isEqualTo(NewsKeyword.AI);
+        assertThat(saved.getCategoryId()).isEqualTo(categoryId);
+        assertThat(saved.getCategoryName()).isEqualTo("테크");
     }
 
     @Test

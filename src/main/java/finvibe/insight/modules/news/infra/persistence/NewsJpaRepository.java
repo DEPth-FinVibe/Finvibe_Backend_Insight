@@ -19,11 +19,11 @@ public interface NewsJpaRepository extends JpaRepository<News, Long> {
             LocalDateTime end);
 
     @Query("""
-            select n.category.id as categoryId, count(n.id) as count
+            select n.categoryId as categoryId, count(n.id) as count
             from News n
             where n.publishedAt between :start and :end
-              and n.category is not null
-            group by n.category.id
+              and n.categoryId is not null
+            group by n.categoryId
             order by count desc
             """)
     List<CategoryCountProjection> countByCategoryIdForPeriod(

@@ -4,6 +4,9 @@ import finvibe.insight.shared.domain.CategoryInfo;
 
 import java.util.List;
 
-public interface ThemeAnalyzer {
-    String analyze(CategoryInfo category, List<String> newsTitles);
+public interface CategoryCatalogPort {
+
+    List<CategoryInfo> getAll();
+
+    List<CategoryInfo> refresh();
 }

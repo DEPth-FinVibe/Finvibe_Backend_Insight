@@ -19,8 +19,8 @@ public class ThemeDto {
         private final java.math.BigDecimal averageChangePct;
 
         public SummaryResponse(ThemeDaily themeDaily, java.math.BigDecimal averageChangePct) {
-            this.categoryId = themeDaily.getCategory().getId();
-            this.categoryName = themeDaily.getCategory().getName();
+            this.categoryId = themeDaily.getCategoryId();
+            this.categoryName = themeDaily.getCategoryName();
             this.averageChangePct = averageChangePct;
         }
     }
@@ -33,8 +33,8 @@ public class ThemeDto {
         private final List<NewsSummary> news;
 
         public DetailResponse(ThemeDaily themeDaily, List<NewsSummary> news) {
-            this.categoryId = themeDaily.getCategory().getId();
-            this.categoryName = themeDaily.getCategory().getName();
+            this.categoryId = themeDaily.getCategoryId();
+            this.categoryName = themeDaily.getCategoryName();
             this.analysis = themeDaily.getAnalysis();
             this.news = news;
         }

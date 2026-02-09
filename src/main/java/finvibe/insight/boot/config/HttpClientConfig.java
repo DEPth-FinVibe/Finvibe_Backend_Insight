@@ -2,6 +2,7 @@ package finvibe.insight.boot.config;
 
 import finvibe.insight.modules.news.infra.client.HttpDiscussionClient;
 import finvibe.insight.modules.news.infra.client.HttpMarketClient;
+import finvibe.insight.modules.news.infra.client.HttpMarketCategoryClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,9 @@ public class HttpClientConfig {
 
     @Value("${market.service.url:http://finvibe.space}")
     private String marketServiceUrl;
+
+    @Value("${market.category.service.url:http://investment}")
+    private String marketCategoryServiceUrl;
 
     @Bean
     public HttpDiscussionClient httpDiscussionClient() {
@@ -42,5 +46,18 @@ public class HttpClientConfig {
                 .build();
 
         return factory.createClient(HttpMarketClient.class);
+    }
+
+    @Bean
+    public HttpMarketCategoryClient httpMarketCategoryClient() {
+        RestClient restClient = RestClient.builder()
+                .baseUrl(marketCategoryServiceUrl)
+                .build();
+
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory
+                .builderFor(RestClientAdapter.create(restClient))
+                .build();
+
+        return factory.createClient(HttpMarketCategoryClient.class);
     }
 }

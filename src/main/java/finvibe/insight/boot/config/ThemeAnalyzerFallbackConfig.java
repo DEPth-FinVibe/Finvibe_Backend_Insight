@@ -11,6 +11,6 @@ public class ThemeAnalyzerFallbackConfig {
     @Bean
     @ConditionalOnMissingBean(ThemeAnalyzer.class)
     public ThemeAnalyzer fallbackThemeAnalyzer() {
-        return (category, newsTitles) -> category.getName() + " 이슈 요약";
+        return (category, newsTitles) -> category.name() + " 이슈 요약";
     }
 }
