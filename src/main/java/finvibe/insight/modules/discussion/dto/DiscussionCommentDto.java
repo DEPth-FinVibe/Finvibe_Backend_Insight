@@ -1,7 +1,6 @@
 package finvibe.insight.modules.discussion.dto;
 
 import finvibe.insight.modules.discussion.domain.DiscussionComment;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,11 +10,6 @@ import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DiscussionCommentDto {
-
-    public record CreateRequest(
-            @NotBlank(message = "content는 비어 있을 수 없습니다.")
-            String content) {
-    }
 
     @Getter
     @NoArgsConstructor

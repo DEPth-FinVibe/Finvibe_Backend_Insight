@@ -23,3 +23,8 @@ langchain4j:
     chat-model:
       api-key: test-key
       model-name: gemini-1.5-flash
+
+market:
+  category:
+    warmup:
+      enabled: false

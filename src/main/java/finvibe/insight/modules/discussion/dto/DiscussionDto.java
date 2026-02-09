@@ -2,8 +2,6 @@ package finvibe.insight.modules.discussion.dto;
 
 import finvibe.insight.modules.discussion.domain.Discussion;
 import finvibe.insight.modules.discussion.domain.DiscussionComment;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +12,6 @@ import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DiscussionDto {
-
-    public record CreateRequest(
-            @NotNull(message = "newsId는 필수입니다.")
-            Long newsId,
-            @NotBlank(message = "content는 비어 있을 수 없습니다.")
-            String content) {
-    }
 
     @Getter
     @NoArgsConstructor
