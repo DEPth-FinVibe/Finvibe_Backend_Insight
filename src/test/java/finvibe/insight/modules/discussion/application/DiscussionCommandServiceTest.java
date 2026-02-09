@@ -62,6 +62,21 @@ class DiscussionCommandServiceTest {
     }
 
     @Test
+    @DisplayName("addDiscussion with null newsId saves discussion without publishing event")
+    void addDiscussionWithNullNewsIdSkipsEvent() {
+        UUID userId = UUID.randomUUID();
+        Discussion saved = Discussion.builder().id(1L).newsId(null).userId(userId).content("content").build();
+        when(discussionRepository.save(any())).thenReturn(saved);
+        when(discussionLikeRepository.countByDiscussionId(1L)).thenReturn(0L);
+        when(discussionCommentRepository.findAllByDiscussionIdOrderByCreatedAtAsc(1L)).thenReturn(List.of());
+
+        discussionCommandService.addDiscussion(null, userId, "content");
+
+        verify(discussionRepository).save(any(Discussion.class));
+        verify(discussionEventPort, never()).publishCreated(any());
+    }
+
+    @Test
     @DisplayName("updateDiscussion updates content when author matches")
     void updateDiscussionUpdatesWhenAuthorMatches() {
         UUID userId = UUID.randomUUID();
@@ -102,6 +117,19 @@ class DiscussionCommandServiceTest {
 
         verify(discussionRepository).delete(discussion);
         verify(discussionEventPort).publishDeleted(3L);
+    }
+
+    @Test
+    @DisplayName("deleteDiscussion with null newsId deletes without publishing event")
+    void deleteDiscussionWithNullNewsIdSkipsEvent() {
+        UUID userId = UUID.randomUUID();
+        Discussion discussion = Discussion.builder().id(1L).newsId(null).userId(userId).build();
+        when(discussionRepository.findById(1L)).thenReturn(Optional.of(discussion));
+
+        discussionCommandService.deleteDiscussion(1L, userId);
+
+        verify(discussionRepository).delete(discussion);
+        verify(discussionEventPort, never()).publishDeleted(any());
     }
 
 

@@ -37,7 +37,9 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
         Discussion discussion = Discussion.create(newsId, userId, content);
         Discussion saved = discussionRepository.save(discussion);
 
-        discussionEventPort.publishCreated(newsId);
+        if (newsId != null) {
+            discussionEventPort.publishCreated(newsId);
+        }
 
         return mapToDiscussionResponse(saved);
     }
@@ -71,7 +73,10 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
         // cascade 설정으로 댓글도 자동 삭제됨
         discussionRepository.delete(discussion);
 
-        discussionEventPort.publishDeleted(discussion.getNewsId());
+        Long newsId = discussion.getNewsId();
+        if (newsId != null) {
+            discussionEventPort.publishDeleted(newsId);
+        }
     }
 
     @Override
