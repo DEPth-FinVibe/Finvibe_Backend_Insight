@@ -57,6 +57,11 @@ public class NewsRepositoryAdapter implements NewsRepository {
     }
 
     @Override
+    public List<News> findAllByCategoryIdOrderByPublishedAtDesc(Long categoryId) {
+        return newsJpaRepository.findAllByCategoryIdOrderByPublishedAtDesc(categoryId);
+    }
+
+    @Override
     public List<NewsCategoryCount> countByCategoryIdForPeriod(LocalDateTime start, LocalDateTime end) {
         return newsJpaRepository.countByCategoryIdForPeriod(start, end).stream()
                 .map(row -> new NewsCategoryCount(row.getCategoryId(), row.getCount()))

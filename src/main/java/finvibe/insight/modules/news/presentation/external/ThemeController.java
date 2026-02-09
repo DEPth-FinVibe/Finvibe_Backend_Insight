@@ -33,11 +33,20 @@ public class ThemeController {
     @GetMapping("/today/{categoryId}")
     @Operation(
             summary = "오늘의 테마 상세 조회",
-            description = "카테고리별 테마 분석과 관련 뉴스 목록을 반환합니다."
+            description = "카테고리별 관련 뉴스 목록을 반환합니다."
     )
     public ThemeDto.DetailResponse getTodayThemeDetail(
             @Parameter(description = "카테고리 ID")
             @PathVariable Long categoryId) {
         return themeQueryUseCase.findTodayThemeDetail(categoryId);
+    }
+
+    @GetMapping("/top-category-analysis")
+    @Operation(
+            summary = "전체 뉴스 기준 최다 카테고리 AI 분석 조회",
+            description = "저장된 전체 뉴스에서 가장 많이 등장한 카테고리 1개를 선정해 AI 분석 결과를 반환합니다."
+    )
+    public ThemeDto.TopCategoryAnalysisResponse getTopCategoryAnalysis() {
+        return themeQueryUseCase.findTopCategoryAnalysis();
     }
 }

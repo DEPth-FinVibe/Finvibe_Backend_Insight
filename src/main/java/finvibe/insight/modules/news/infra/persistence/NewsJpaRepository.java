@@ -18,6 +18,8 @@ public interface NewsJpaRepository extends JpaRepository<News, Long> {
             LocalDateTime start,
             LocalDateTime end);
 
+    List<News> findAllByCategoryIdOrderByPublishedAtDesc(Long categoryId);
+
     @Query("""
             select n.category.id as categoryId, count(n.id) as count
             from News n

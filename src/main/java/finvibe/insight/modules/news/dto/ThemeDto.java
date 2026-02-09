@@ -29,13 +29,11 @@ public class ThemeDto {
     public static class DetailResponse {
         private final Long categoryId;
         private final String categoryName;
-        private final String analysis;
         private final List<NewsSummary> news;
 
         public DetailResponse(ThemeDaily themeDaily, List<NewsSummary> news) {
             this.categoryId = themeDaily.getCategory().getId();
             this.categoryName = themeDaily.getCategory().getName();
-            this.analysis = themeDaily.getAnalysis();
             this.news = news;
         }
     }
@@ -50,6 +48,21 @@ public class ThemeDto {
             this.title = news.getTitle();
             this.publishedAt = news.getPublishedAt();
             this.provider = news.getProvider();
+        }
+    }
+
+    @Getter
+    public static class TopCategoryAnalysisResponse {
+        private final Long categoryId;
+        private final String categoryName;
+        private final long newsCount;
+        private final String analysis;
+
+        public TopCategoryAnalysisResponse(Long categoryId, String categoryName, long newsCount, String analysis) {
+            this.categoryId = categoryId;
+            this.categoryName = categoryName;
+            this.newsCount = newsCount;
+            this.analysis = analysis;
         }
     }
 }

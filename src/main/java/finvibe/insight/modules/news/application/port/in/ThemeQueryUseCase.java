@@ -8,4 +8,6 @@ public interface ThemeQueryUseCase {
     List<ThemeDto.SummaryResponse> findTodayThemes();
 
     ThemeDto.DetailResponse findTodayThemeDetail(Long categoryId);
+
+    ThemeDto.TopCategoryAnalysisResponse findTopCategoryAnalysis();
 }
