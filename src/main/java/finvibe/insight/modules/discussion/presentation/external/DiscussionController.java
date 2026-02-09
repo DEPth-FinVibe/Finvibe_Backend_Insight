@@ -25,8 +25,6 @@ public class DiscussionController {
 
     /**
      * 전체 토론 목록을 조회합니다.
-     *
-     * @param sortType 정렬 기준 (LATEST, POPULAR)
      */
     @GetMapping
     @Operation(
@@ -34,8 +32,17 @@ public class DiscussionController {
             description = "LATEST 또는 POPULAR 기준으로 토론 목록을 반환합니다."
     )
     public List<DiscussionDto.Response> getDiscussions(
-            @Parameter(description = "정렬 기준 (LATEST 또는 POPULAR)")
-            @RequestParam(value = "sort", defaultValue = "LATEST") DiscussionSortType sortType) {
+            @RequestBody(required = false) DiscussionDto.QueryRequest request) {
+        if (request == null) {
+            request = new DiscussionDto.QueryRequest();
+        }
+
+        DiscussionSortType sortType = request.getSort() == null ? DiscussionSortType.LATEST : request.getSort();
+
+        if (request.getNewsId() != null) {
+            return discussionQueryUseCase.findAllByNewsId(request.getNewsId(), sortType);
+        }
+
         return discussionQueryUseCase.findAll(sortType);
     }
 
@@ -48,13 +55,10 @@ public class DiscussionController {
             description = "새 토론 스레드를 생성합니다."
     )
     public DiscussionDto.Response createDiscussion(
-            @Parameter(description = "토론이 연결된 뉴스 ID")
-            @RequestParam("newsId") Long newsId,
+            @RequestBody DiscussionDto.CreateRequest request,
             @Parameter(hidden = true)
-            @AuthenticatedUser Requester requester,
-            @Parameter(description = "토론 내용")
-            @RequestParam("content") String content) {
-        return discussionCommandUseCase.addDiscussion(newsId, requester.getUuid(), content);
+            @AuthenticatedUser Requester requester) {
+        return discussionCommandUseCase.addDiscussion(request.getNewsId(), requester.getUuid(), request.getContent());
     }
 
     /**
@@ -67,7 +71,7 @@ public class DiscussionController {
     )
     public void deleteDiscussion(
             @Parameter(description = "토론 ID")
-            @PathVariable("discussionId") Long discussionId,
+            @PathVariable Long discussionId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
         discussionCommandUseCase.deleteDiscussion(discussionId, requester.getUuid());
@@ -83,7 +87,7 @@ public class DiscussionController {
     )
     public void toggleLike(
             @Parameter(description = "토론 ID")
-            @PathVariable("discussionId") Long discussionId,
+            @PathVariable Long discussionId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
         discussionCommandUseCase.toggleDiscussionLike(discussionId, requester.getUuid());

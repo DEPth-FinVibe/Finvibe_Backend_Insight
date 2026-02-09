@@ -14,6 +14,26 @@ import java.util.UUID;
 public class DiscussionDto {
 
     @Getter
+    @NoArgsConstructor
+    public static class QueryRequest {
+        private Long newsId;
+        private DiscussionSortType sort = DiscussionSortType.LATEST;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class CreateRequest {
+        private Long newsId;
+        private String content;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    public static class CountQueryRequest {
+        private List<Long> newsIds;
+    }
+
+    @Getter
     public static class Response {
         private final Long id;
         private final UUID userId;

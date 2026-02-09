@@ -4,6 +4,7 @@ import finvibe.insight.boot.security.model.AuthenticatedUser;
 import finvibe.insight.boot.security.model.Requester;
 import finvibe.insight.modules.discussion.application.port.in.CommentCommandUseCase;
 import finvibe.insight.modules.discussion.application.port.in.DiscussionQueryUseCase;
+import finvibe.insight.modules.discussion.dto.DiscussionCommentDto;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,7 +31,7 @@ public class DiscussionCommentController {
             summary = "댓글 목록 조회",
             description = "지정한 토론의 댓글 목록을 반환합니다."
     )
-    public List<DiscussionDto.CommentResponse> getComments(@PathVariable("discussionId") Long discussionId) {
+    public List<DiscussionDto.CommentResponse> getComments(@PathVariable Long discussionId) {
         return discussionQueryUseCase.findCommentsByDiscussionId(discussionId);
     }
 
@@ -44,12 +45,11 @@ public class DiscussionCommentController {
     )
     public DiscussionDto.CommentResponse addComment(
             @Parameter(description = "토론 ID")
-            @PathVariable("discussionId") Long discussionId,
+            @PathVariable Long discussionId,
+            @RequestBody DiscussionCommentDto.CreateRequest request,
             @Parameter(hidden = true)
-            @AuthenticatedUser Requester requester,
-            @Parameter(description = "댓글 내용")
-            @RequestParam("content") String content) {
-        return commentCommandUseCase.addComment(discussionId, requester.getUuid(), content);
+            @AuthenticatedUser Requester requester) {
+        return commentCommandUseCase.addComment(discussionId, requester.getUuid(), request.getContent());
     }
 
     /**
@@ -62,7 +62,7 @@ public class DiscussionCommentController {
     )
     public void deleteComment(
             @Parameter(description = "댓글 ID")
-            @PathVariable("commentId") Long commentId,
+            @PathVariable Long commentId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
         commentCommandUseCase.deleteComment(commentId, requester.getUuid());
@@ -78,7 +78,7 @@ public class DiscussionCommentController {
     )
     public void toggleCommentLike(
             @Parameter(description = "댓글 ID")
-            @PathVariable("commentId") Long commentId,
+            @PathVariable Long commentId,
             @Parameter(hidden = true)
             @AuthenticatedUser Requester requester) {
         commentCommandUseCase.toggleCommentLike(commentId, requester.getUuid());

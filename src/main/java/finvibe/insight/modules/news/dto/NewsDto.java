@@ -15,6 +15,12 @@ import java.util.List;
 public class NewsDto {
 
     @Getter
+    @NoArgsConstructor
+    public static class QueryRequest {
+        private NewsSortType sort = NewsSortType.LATEST;
+    }
+
+    @Getter
     public static class Response {
         private final Long id;
         private final String title;

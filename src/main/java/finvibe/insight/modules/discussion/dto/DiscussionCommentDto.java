@@ -12,6 +12,12 @@ import java.util.UUID;
 public class DiscussionCommentDto {
 
     @Getter
+    @NoArgsConstructor
+    public static class CreateRequest {
+        private String content;
+    }
+
+    @Getter
     public static class Response {
         private final Long id;
         private final UUID userId;

@@ -37,7 +37,7 @@ public class ThemeController {
     )
     public ThemeDto.DetailResponse getTodayThemeDetail(
             @Parameter(description = "카테고리 ID")
-            @PathVariable("categoryId") Long categoryId) {
+            @PathVariable Long categoryId) {
         return themeQueryUseCase.findTodayThemeDetail(categoryId);
     }
 }

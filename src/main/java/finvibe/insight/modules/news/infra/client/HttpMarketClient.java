@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface HttpMarketClient {
 
     @GetExchange("/categories/{categoryId}/change-rate")
-    MarketCategoryChangeRateResponse getCategoryChangeRate(@PathVariable("categoryId") Long categoryId);
+    MarketCategoryChangeRateResponse getCategoryChangeRate(@PathVariable Long categoryId);
 }

@@ -25,8 +25,6 @@ public class NewsController {
 
     /**
      * 뉴스 목록을 조회합니다.
-     * 
-     * @param sortType 정렬 기준 (LATEST: 최신순, POPULAR: 인기순-좋아요순)
      */
     @GetMapping
     @Operation(
@@ -34,8 +32,12 @@ public class NewsController {
             description = "지정한 정렬 기준으로 뉴스 요약 목록을 반환합니다."
     )
     public List<NewsDto.Response> getNewsList(
-            @Parameter(description = "정렬 기준 (LATEST 또는 POPULAR)")
-            @RequestParam(value = "sort", defaultValue = "LATEST") NewsSortType sortType) {
+            @RequestBody(required = false) NewsDto.QueryRequest request) {
+        if (request == null) {
+            request = new NewsDto.QueryRequest();
+        }
+
+        NewsSortType sortType = request.getSort() == null ? NewsSortType.LATEST : request.getSort();
         return newsQueryUseCase.findAllNewsSummary(sortType);
     }
 
@@ -47,7 +49,7 @@ public class NewsController {
             summary = "뉴스 상세 조회",
             description = "뉴스 상세, 좋아요, 토론 정보를 포함해 단건을 반환합니다."
     )
-    public NewsDto.DetailResponse getNewsDetail(@PathVariable("id") Long id) {
+    public NewsDto.DetailResponse getNewsDetail(@PathVariable Long id) {
         return newsQueryUseCase.findNewsById(id);
     }
 
@@ -59,7 +61,7 @@ public class NewsController {
             summary = "뉴스 좋아요 토글",
             description = "인증된 사용자에 대해 좋아요를 토글합니다."
     )
-    public void toggleLike(@PathVariable("id") Long id, @AuthenticatedUser Requester requester) {
+    public void toggleLike(@PathVariable Long id, @AuthenticatedUser Requester requester) {
         newsCommandUseCase.toggleNewsLike(id, requester.getUuid());
     }
 
