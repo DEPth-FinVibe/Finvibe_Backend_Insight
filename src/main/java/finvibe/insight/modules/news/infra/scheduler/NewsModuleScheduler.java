@@ -4,6 +4,7 @@ import finvibe.insight.modules.news.application.port.in.NewsCommandUseCase;
 import finvibe.insight.modules.news.application.port.in.ThemeCommandUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class NewsModuleScheduler {
      * 지정된 스케줄에 맞춰 최신 뉴스를 수집하고 AI 분석을 수행합니다.
      */
     @Scheduled(cron = "${news.crawler.cron:0 0 0 * * *}", zone = "Asia/Seoul")
+    @SchedulerLock(name = "NewsModuleScheduler.syncLatestNews", lockAtLeastFor = "PT1M", lockAtMostFor = "PT2H")
     public void syncLatestNews() {
         log.info("Starting scheduled news collection and analysis...");
         newsCommandUseCase.syncLatestNews();
@@ -29,7 +31,8 @@ public class NewsModuleScheduler {
     /**
      * 3시간마다 모든 뉴스의 토론 수를 최신화합니다.
      */
-    @Scheduled(cron = "0 0 */3 * * *")
+    @Scheduled(cron = "0 0 */3 * * *", zone = "Asia/Seoul")
+    @SchedulerLock(name = "NewsModuleScheduler.syncDiscussionCounts", lockAtLeastFor = "PT30S", lockAtMostFor = "PT30M")
     public void syncDiscussionCounts() {
         log.info("Starting periodic discussion count synchronization...");
         newsCommandUseCase.syncAllDiscussionCounts();
