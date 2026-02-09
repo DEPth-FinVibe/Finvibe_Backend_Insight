@@ -35,7 +35,7 @@ public class ThemeDto {
         public DetailResponse(ThemeDaily themeDaily, List<NewsSummary> news) {
             this.categoryId = themeDaily.getCategoryId();
             this.categoryName = themeDaily.getCategoryName();
-            this.analysis = themeDaily.getAnalysis();
+            this.analysis = themeDaily.getAnalysis() == null ? "" : themeDaily.getAnalysis();
             this.news = news;
         }
     }
