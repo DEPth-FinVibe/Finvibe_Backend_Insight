@@ -37,7 +37,7 @@ public class NewsController {
     public Page<NewsDto.Response> getNewsList(
             @PageableDefault(size = 20) Pageable pageable,
             @Parameter(description = "정렬 기준 (LATEST, POPULAR)", example = "LATEST")
-            @RequestParam(name = "sort", required = false) NewsSortType sort
+            @RequestParam(name = "sortType", required = false) NewsSortType sort
     ) {
         NewsSortType sortType = sort == null ? NewsSortType.LATEST : sort;
         return newsQueryUseCase.findAllNews(sortType, pageable);
