@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,6 +52,7 @@ class NewsQueryServiceTest {
         when(newsRepository.findAll()).thenReturn(List.of(first, second));
         when(newsLikeRepository.countByNewsId(1L)).thenReturn(10L);
         when(newsLikeRepository.countByNewsId(2L)).thenReturn(3L);
+        when(newsDiscussionPort.getDiscussionCounts(anyList())).thenReturn(Map.of(1L, 0L, 2L, 0L));
 
         List<NewsDto.Response> results = newsQueryService.findAllNewsSummary(NewsSortType.POPULAR);
 
@@ -66,6 +68,7 @@ class NewsQueryServiceTest {
         News oldNews = News.builder().id(1L).title("old").createdAt(older).build();
         News newNews = News.builder().id(2L).title("new").createdAt(newer).build();
         when(newsRepository.findAll()).thenReturn(List.of(oldNews, newNews));
+        when(newsDiscussionPort.getDiscussionCounts(anyList())).thenReturn(Map.of(1L, 0L, 2L, 0L));
 
         List<NewsDto.Response> results = newsQueryService.findAllNewsSummary(NewsSortType.LATEST);
 
@@ -80,6 +83,7 @@ class NewsQueryServiceTest {
         News nullCreatedAt = News.builder().id(1L).title("null-date").build();
         News dated = News.builder().id(2L).title("dated").createdAt(newer).build();
         when(newsRepository.findAll()).thenReturn(List.of(nullCreatedAt, dated));
+        when(newsDiscussionPort.getDiscussionCounts(anyList())).thenReturn(Map.of(1L, 0L, 2L, 0L));
 
         List<NewsDto.Response> results = newsQueryService.findAllNewsSummary(NewsSortType.LATEST);
 
@@ -89,7 +93,7 @@ class NewsQueryServiceTest {
     }
 
     @Test
-    @DisplayName("findNewsById returns detail response with discussions")
+    @DisplayName("findNewsById returns detail response")
     void findNewsByIdReturnsDetail() {
         News news = News.builder()
                 .id(1L)
@@ -101,14 +105,13 @@ class NewsQueryServiceTest {
                 .build();
         when(newsRepository.findById(1L)).thenReturn(Optional.of(news));
         when(newsLikeRepository.countByNewsId(1L)).thenReturn(7L);
-        when(newsDiscussionPort.getDiscussions(1L, DiscussionSortType.LATEST))
-                .thenReturn(List.of());
+        when(newsDiscussionPort.getDiscussionCount(1L)).thenReturn(5L);
 
         NewsDto.DetailResponse response = newsQueryService.findNewsById(1L);
 
         assertThat(response.getId()).isEqualTo(1L);
         assertThat(response.getLikeCount()).isEqualTo(7L);
-        assertThat(response.getDiscussions()).isEmpty();
+        assertThat(response.getDiscussionCount()).isEqualTo(5L);
     }
 
     @Test
