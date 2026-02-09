@@ -24,8 +24,6 @@ public interface NewsRepository {
             LocalDateTime start,
             LocalDateTime end);
 
-    List<News> findAllByCategoryIdOrderByPublishedAtDesc(Long categoryId);
-
     List<NewsCategoryCount> countByCategoryIdForPeriod(LocalDateTime start, LocalDateTime end);
 
     record NewsCategoryCount(Long categoryId, long count) {
