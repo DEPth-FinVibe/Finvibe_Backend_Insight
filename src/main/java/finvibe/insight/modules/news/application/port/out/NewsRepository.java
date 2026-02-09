@@ -1,10 +1,10 @@
 package finvibe.insight.modules.news.application.port.out;
 
-import finvibe.insight.modules.news.domain.News;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import finvibe.insight.modules.news.domain.News;
 
 public interface NewsRepository {
     News save(News news);
@@ -14,6 +14,8 @@ public interface NewsRepository {
     Optional<News> findById(Long id);
 
     boolean existsByTitle(String title);
+
+    org.springframework.data.domain.Page<News> findAll(org.springframework.data.domain.Pageable pageable);
 
     List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter);
 

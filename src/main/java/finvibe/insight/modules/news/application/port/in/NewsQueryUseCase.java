@@ -2,11 +2,15 @@ package finvibe.insight.modules.news.application.port.in;
 
 import finvibe.insight.modules.news.dto.NewsDto;
 import finvibe.insight.modules.news.dto.NewsSortType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface NewsQueryUseCase {
     List<NewsDto.Response> findAllNewsSummary(NewsSortType sortType);
+
+    Page<NewsDto.Response> findAllNews(NewsSortType sortType, Pageable pageable);
 
     NewsDto.DetailResponse findNewsById(Long id);
 

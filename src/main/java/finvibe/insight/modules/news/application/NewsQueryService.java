@@ -9,10 +9,11 @@ import finvibe.insight.modules.news.domain.NewsKeyword;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
 import finvibe.insight.modules.news.dto.NewsDto;
 import finvibe.insight.modules.news.dto.NewsSortType;
-import finvibe.insight.modules.discussion.dto.DiscussionDto;
-import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,27 +36,48 @@ public class NewsQueryService implements NewsQueryUseCase {
     @Override
     public List<NewsDto.Response> findAllNewsSummary(NewsSortType sortType) {
         List<News> newsList = newsRepository.findAll();
+        return convertToResponseList(newsList, sortType);
+    }
 
+    @Override
+    public Page<NewsDto.Response> findAllNews(NewsSortType sortType, Pageable pageable) {
+        Page<News> newsPage = newsRepository.findAll(pageable);
+        List<NewsDto.Response> responses = convertToResponseList(newsPage.getContent(), sortType);
+        return new PageImpl<>(responses, pageable, newsPage.getTotalElements());
+    }
+
+    private List<NewsDto.Response> convertToResponseList(List<News> newsList, NewsSortType sortType) {
+        List<Long> newsIds = newsList.stream()
+                .map(News::getId)
+                .toList();
+
+        Map<Long, Long> likeCountMap = newsList.stream()
+                .collect(Collectors.toMap(
+                        News::getId,
+                        news -> newsLikeRepository.countByNewsId(news.getId())));
+
+        Map<Long, Long> discussionCountMap = newsDiscussionPort.getDiscussionCounts(newsIds);
+
+        Comparator<News> comparator;
         if (sortType == NewsSortType.POPULAR) {
-            // 인기순: 좋아요 개수로 정렬 (내림차순)
-            Map<Long, Long> likeCountMap = newsList.stream()
-                    .collect(Collectors.toMap(
-                            News::getId,
-                            news -> newsLikeRepository.countByNewsId(news.getId())));
-
-            return newsList.stream()
-                    .sorted(Comparator.comparing((News news) -> likeCountMap.getOrDefault(news.getId(), 0L)).reversed())
-                    .map(NewsDto.Response::new)
-                    .toList();
+            comparator = Comparator.comparing(
+                            (News news) -> likeCountMap.getOrDefault(news.getId(), 0L))
+                    .reversed();
         } else {
-            // 최신순: 생성일자로 정렬 (내림차순)
-            return newsList.stream()
-                    .sorted(Comparator.comparing(
-                            News::getCreatedAt,
-                            Comparator.nullsLast(Comparator.reverseOrder())))
-                    .map(NewsDto.Response::new)
-                    .toList();
+            comparator = Comparator.comparing(
+                    News::getCreatedAt,
+                    Comparator.nullsLast(Comparator.reverseOrder()));
         }
+
+        return newsList.stream()
+                .sorted(comparator)
+                .map(news -> new NewsDto.Response(
+                        news,
+                        likeCountMap.getOrDefault(news.getId(), 0L),
+                        discussionCountMap.getOrDefault(news.getId(), news.getDiscussionCount()),
+                        0L
+                ))
+                .toList();
     }
 
     @Override
@@ -64,10 +86,14 @@ public class NewsQueryService implements NewsQueryUseCase {
                 .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
 
         long likeCount = newsLikeRepository.countByNewsId(id);
-        List<DiscussionDto.Response> discussions =
-                newsDiscussionPort.getDiscussions(id, DiscussionSortType.LATEST);
+        long discussionCount = newsDiscussionPort.getDiscussionCount(id);
 
-        return new NewsDto.DetailResponse(news, likeCount, news.getDiscussionCount(), discussions);
+        return new NewsDto.DetailResponse(
+                news,
+                likeCount,
+                discussionCount,
+                0L // 공유 수는 아직 별도 집계가 없으므로 0으로 반환
+        );
     }
 
     @Override

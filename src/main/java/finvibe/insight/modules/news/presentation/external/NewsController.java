@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,16 +32,15 @@ public class NewsController {
     @GetMapping
     @Operation(
             summary = "뉴스 목록 조회",
-            description = "지정한 정렬 기준으로 뉴스 요약 목록을 반환합니다."
+            description = "지정한 정렬 기준과 페이지 정보로 뉴스 요약 목록을 반환합니다."
     )
-    public List<NewsDto.Response> getNewsList(
-            @RequestBody(required = false) NewsDto.QueryRequest request) {
-        if (request == null) {
-            request = new NewsDto.QueryRequest();
-        }
-
-        NewsSortType sortType = request.getSort() == null ? NewsSortType.LATEST : request.getSort();
-        return newsQueryUseCase.findAllNewsSummary(sortType);
+    public Page<NewsDto.Response> getNewsList(
+            @PageableDefault(size = 20) Pageable pageable,
+            @Parameter(description = "정렬 기준 (LATEST, POPULAR)", example = "LATEST")
+            @RequestParam(name = "sort", required = false) NewsSortType sort
+    ) {
+        NewsSortType sortType = sort == null ? NewsSortType.LATEST : sort;
+        return newsQueryUseCase.findAllNews(sortType, pageable);
     }
 
     /**
