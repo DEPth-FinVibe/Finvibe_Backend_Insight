@@ -16,7 +16,7 @@ public class HttpClientConfig {
     @Value("${discussion.service.url:http://localhost:8080}")
     private String discussionServiceUrl;
 
-    @Value("${market.service.url:http://finvibe.space}")
+    @Value("${market.service.url:http://investment}")
     private String marketServiceUrl;
 
     @Value("${market.category.service.url:http://investment}")

@@ -43,7 +43,7 @@ security:
 
 market:
   service:
-    url: ${MARKET_SERVICE_URL:http://finvibe.space}
+    url: ${MARKET_SERVICE_URL:http://investment}
   category:
     service:
       url: ${MARKET_CATEGORY_SERVICE_URL:http://investment}
