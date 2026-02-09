@@ -9,9 +9,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
@@ -20,8 +20,8 @@ import java.time.LocalDate;
 @Table(name = "theme_daily")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-    public class ThemeDaily extends TimeStampedBaseEntity {
+@SuperBuilder
+public class ThemeDaily extends TimeStampedBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
