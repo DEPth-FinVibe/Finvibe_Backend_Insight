@@ -64,7 +64,7 @@ class DiscussionCommandServiceTest {
 
         verify(discussionRepository).save(any(Discussion.class));
         verify(discussionEventPort).publishCreated(10L);
-        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.NEWS_COMMENT_COUNT), eq(1.0), any());
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.DISCUSSION_CREATED), eq(1.0), any());
     }
 
     @Test
