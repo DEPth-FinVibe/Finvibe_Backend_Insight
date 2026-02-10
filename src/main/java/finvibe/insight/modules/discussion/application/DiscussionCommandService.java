@@ -11,6 +11,8 @@ import finvibe.insight.modules.discussion.domain.DiscussionComment;
 import finvibe.insight.modules.discussion.domain.DiscussionLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import finvibe.insight.shared.application.port.out.UserMetricEventPort;
+import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     private final DiscussionCommentLikeRepository discussionCommentLikeRepository;
     private final DiscussionLikeRepository discussionLikeRepository;
     private final DiscussionEventPort discussionEventPort;
+    private final UserMetricEventPort userMetricEventPort;
 
     @Override
     public DiscussionDto.Response addDiscussion(Long newsId, UUID userId, String content) {
@@ -36,6 +40,11 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
         // 여기서는 newsId를 그대로 저장하고 이벤트를 발행하는 것에 집중.
         Discussion discussion = Discussion.create(newsId, userId, content);
         Discussion saved = discussionRepository.save(discussion);
+
+        MetricEventType metricEventType = newsId != null
+                ? MetricEventType.DISCUSSION_CREATED
+                : MetricEventType.DISCUSSION_POST_COUNT;
+        userMetricEventPort.publish(userId.toString(), metricEventType, 1.0, Instant.now());
 
         if (newsId != null) {
             discussionEventPort.publishCreated(newsId);
@@ -83,11 +92,23 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
     public void toggleDiscussionLike(Long discussionId, UUID userId) {
         discussionLikeRepository.findByDiscussionIdAndUserId(discussionId, userId)
                 .ifPresentOrElse(
-                        discussionLikeRepository::delete,
+                        existingLike -> {
+                            discussionLikeRepository.delete(existingLike);
+                            userMetricEventPort.publish(
+                                    userId.toString(),
+                                    MetricEventType.DISCUSSION_LIKE_COUNT,
+                                    -1.0,
+                                    Instant.now());
+                        },
                         () -> {
                             Discussion discussion = discussionRepository.findById(discussionId)
                                     .orElseThrow(() -> new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND));
                             discussionLikeRepository.save(DiscussionLike.create(discussion, userId));
+                            userMetricEventPort.publish(
+                                    userId.toString(),
+                                    MetricEventType.DISCUSSION_LIKE_COUNT,
+                                    1.0,
+                                    Instant.now());
                         });
     }
 

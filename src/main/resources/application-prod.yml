@@ -48,6 +48,10 @@ market:
     service:
       url: ${MARKET_CATEGORY_SERVICE_URL:http://investment}
 
+metric:
+  kafka:
+    topic: ${METRIC_KAFKA_TOPIC:user.metric.updated.v1}
+
 langchain4j:
   google-ai-gemini:
     chat-model:

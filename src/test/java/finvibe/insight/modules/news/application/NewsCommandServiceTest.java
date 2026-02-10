@@ -11,7 +11,9 @@ import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsKeyword;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
+import finvibe.insight.shared.application.port.out.UserMetricEventPort;
 import finvibe.insight.shared.domain.CategoryInfo;
+import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,6 +53,9 @@ class NewsCommandServiceTest {
 
     @Mock
     private CategoryCatalogPort categoryCatalogPort;
+
+    @Mock
+    private UserMetricEventPort userMetricEventPort;
 
     @InjectMocks
     private NewsCommandService newsCommandService;
@@ -113,6 +118,7 @@ class NewsCommandServiceTest {
 
         verify(newsLikeRepository).delete(existing);
         verify(newsLikeRepository, never()).save(any());
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.NEWS_LIKE_COUNT), eq(-1.0), any());
     }
 
     @Test
@@ -130,6 +136,7 @@ class NewsCommandServiceTest {
         verify(newsLikeRepository).save(captor.capture());
         assertThat(captor.getValue().getNews()).isEqualTo(news);
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.NEWS_LIKE_COUNT), eq(1.0), any());
     }
 
     @Test

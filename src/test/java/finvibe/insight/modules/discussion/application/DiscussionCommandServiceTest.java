@@ -8,6 +8,8 @@ import finvibe.insight.modules.discussion.application.port.out.DiscussionReposit
 import finvibe.insight.modules.discussion.domain.Discussion;
 import finvibe.insight.modules.discussion.domain.DiscussionLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
+import finvibe.insight.shared.application.port.out.UserMetricEventPort;
+import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,9 @@ class DiscussionCommandServiceTest {
     @Mock
     private DiscussionEventPort discussionEventPort;
 
+    @Mock
+    private UserMetricEventPort userMetricEventPort;
+
     @InjectMocks
     private DiscussionCommandService discussionCommandService;
 
@@ -59,6 +64,7 @@ class DiscussionCommandServiceTest {
 
         verify(discussionRepository).save(any(Discussion.class));
         verify(discussionEventPort).publishCreated(10L);
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.NEWS_COMMENT_COUNT), eq(1.0), any());
     }
 
     @Test
@@ -74,6 +80,7 @@ class DiscussionCommandServiceTest {
 
         verify(discussionRepository).save(any(Discussion.class));
         verify(discussionEventPort, never()).publishCreated(any());
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.DISCUSSION_POST_COUNT), eq(1.0), any());
     }
 
     @Test
@@ -145,6 +152,7 @@ class DiscussionCommandServiceTest {
 
         verify(discussionLikeRepository).delete(existing);
         verify(discussionLikeRepository, never()).save(any());
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.DISCUSSION_LIKE_COUNT), eq(-1.0), any());
     }
 
     @Test
@@ -162,6 +170,7 @@ class DiscussionCommandServiceTest {
         verify(discussionLikeRepository).save(captor.capture());
         assertThat(captor.getValue().getDiscussion()).isEqualTo(discussion);
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.DISCUSSION_LIKE_COUNT), eq(1.0), any());
     }
 
 }

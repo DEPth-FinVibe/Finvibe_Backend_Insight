@@ -10,7 +10,9 @@ import finvibe.insight.modules.news.application.port.out.CategoryCatalogPort;
 import finvibe.insight.modules.news.domain.News;
 import finvibe.insight.modules.news.domain.NewsLike;
 import finvibe.insight.modules.news.domain.error.NewsErrorCode;
+import finvibe.insight.shared.application.port.out.UserMetricEventPort;
 import finvibe.insight.shared.domain.CategoryInfo;
+import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +39,7 @@ public class NewsCommandService implements NewsCommandUseCase {
     private final NewsAiAnalyzer newsAiAnalyzer;
     private final NewsDiscussionPort newsDiscussionPort;
     private final CategoryCatalogPort categoryCatalogPort;
+    private final UserMetricEventPort userMetricEventPort;
 
     @Override
     public void syncLatestNews() {
@@ -98,12 +102,23 @@ public class NewsCommandService implements NewsCommandUseCase {
     @Override
     public void toggleNewsLike(Long newsId, UUID userId) {
         newsLikeRepository.findByNewsIdAndUserId(newsId, userId)
-                .ifPresentOrElse(
-                        newsLikeRepository::delete,
+                .ifPresentOrElse(existingLike -> {
+                            newsLikeRepository.delete(existingLike);
+                            userMetricEventPort.publish(
+                                    userId.toString(),
+                                    MetricEventType.NEWS_LIKE_COUNT,
+                                    -1.0,
+                                    Instant.now());
+                        },
                         () -> {
                             News news = newsRepository.findById(newsId)
                                     .orElseThrow(() -> new DomainException(NewsErrorCode.NEWS_NOT_FOUND));
                             newsLikeRepository.save(NewsLike.create(news, userId));
+                            userMetricEventPort.publish(
+                                    userId.toString(),
+                                    MetricEventType.NEWS_LIKE_COUNT,
+                                    1.0,
+                                    Instant.now());
                         });
     }
 

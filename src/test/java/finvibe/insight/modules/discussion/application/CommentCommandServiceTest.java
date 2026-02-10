@@ -7,6 +7,8 @@ import finvibe.insight.modules.discussion.domain.Discussion;
 import finvibe.insight.modules.discussion.domain.DiscussionComment;
 import finvibe.insight.modules.discussion.domain.DiscussionCommentLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
+import finvibe.insight.shared.application.port.out.UserMetricEventPort;
+import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,9 @@ class CommentCommandServiceTest {
     @Mock
     private DiscussionCommentLikeRepository discussionCommentLikeRepository;
 
+    @Mock
+    private UserMetricEventPort userMetricEventPort;
+
     @InjectMocks
     private CommentCommandService commentCommandService;
 
@@ -51,6 +56,7 @@ class CommentCommandServiceTest {
         commentCommandService.addComment(1L, userId, "comment");
 
         verify(discussionCommentRepository).save(any(DiscussionComment.class));
+        verify(userMetricEventPort).publish(eq(userId.toString()), eq(MetricEventType.DISCUSSION_COMMENT_COUNT), eq(1.0), any());
     }
 
     @Test

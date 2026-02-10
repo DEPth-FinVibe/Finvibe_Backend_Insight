@@ -9,11 +9,14 @@ import finvibe.insight.modules.discussion.domain.DiscussionComment;
 import finvibe.insight.modules.discussion.domain.DiscussionCommentLike;
 import finvibe.insight.modules.discussion.domain.error.DiscussionErrorCode;
 import finvibe.insight.modules.discussion.dto.DiscussionDto;
+import finvibe.insight.shared.application.port.out.UserMetricEventPort;
+import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -24,6 +27,7 @@ public class CommentCommandService implements CommentCommandUseCase {
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
     private final DiscussionCommentLikeRepository discussionCommentLikeRepository;
+    private final UserMetricEventPort userMetricEventPort;
 
     @Override
     public DiscussionDto.CommentResponse addComment(Long discussionId, UUID userId, String content) {
@@ -32,6 +36,11 @@ public class CommentCommandService implements CommentCommandUseCase {
 
         DiscussionComment comment = DiscussionComment.create(discussion, userId, content);
         DiscussionComment saved = discussionCommentRepository.save(comment);
+        userMetricEventPort.publish(
+                userId.toString(),
+                MetricEventType.DISCUSSION_COMMENT_COUNT,
+                1.0,
+                Instant.now());
 
         return mapToCommentResponse(saved);
     }

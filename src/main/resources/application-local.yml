@@ -54,6 +54,10 @@ market:
       # 실전투자: ws://ops.koreainvestment.com:21000
       # 모의투자: ws://ops.koreainvestment.com:31000
 
+metric:
+  kafka:
+    topic: ${METRIC_KAFKA_TOPIC:user.metric.updated.v1}
+
 security:
   jwt:
     hmac-secret: ${JWT_HMAC_SECRET:testsecret12312312313123123123}

@@ -30,6 +30,10 @@ market:
     service:
       url: http://investment
 
+metric:
+  kafka:
+    topic: user.metric.updated.v1
+
 springdoc:
   swagger-ui:
     path: /doc/user/swagger-ui.html
