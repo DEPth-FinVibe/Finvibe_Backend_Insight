@@ -41,6 +41,12 @@ public class NewsRepositoryAdapter implements NewsRepository {
     }
 
     @Override
+    public org.springframework.data.domain.Page<News> findAllOrderByPublishedAtDescIdDesc(
+            org.springframework.data.domain.Pageable pageable) {
+        return newsJpaRepository.findAllByOrderByPublishedAtDescIdDesc(pageable);
+    }
+
+    @Override
     public List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter) {
         return newsJpaRepository.findAllByCreatedAtAfter(createdAfter);
     }

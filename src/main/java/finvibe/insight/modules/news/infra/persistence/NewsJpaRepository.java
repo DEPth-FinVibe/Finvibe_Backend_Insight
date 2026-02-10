@@ -11,6 +11,9 @@ import java.util.List;
 public interface NewsJpaRepository extends JpaRepository<News, Long> {
     boolean existsByTitle(String title);
 
+    org.springframework.data.domain.Page<News> findAllByOrderByPublishedAtDescIdDesc(
+            org.springframework.data.domain.Pageable pageable);
+
     List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter);
 
     List<News> findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(

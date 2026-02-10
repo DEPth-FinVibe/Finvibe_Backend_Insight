@@ -1,7 +1,5 @@
 package finvibe.insight.modules.news.application;
 
-import finvibe.insight.modules.discussion.dto.DiscussionDto;
-import finvibe.insight.modules.discussion.dto.DiscussionSortType;
 import finvibe.insight.modules.news.application.port.out.NewsDiscussionPort;
 import finvibe.insight.modules.news.application.port.out.NewsLikeRepository;
 import finvibe.insight.modules.news.application.port.out.NewsRepository;
@@ -15,6 +13,8 @@ import finvibe.insight.shared.error.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,12 +60,12 @@ class NewsQueryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllNewsSummary sorts by createdAt when LATEST")
+    @DisplayName("findAllNewsSummary sorts by publishedAt when LATEST")
     void findAllNewsSummaryLatest() {
         LocalDateTime older = LocalDateTime.now().minusDays(1);
         LocalDateTime newer = LocalDateTime.now();
-        News oldNews = News.builder().id(1L).title("old").createdAt(older).build();
-        News newNews = News.builder().id(2L).title("new").createdAt(newer).build();
+        News oldNews = News.builder().id(1L).title("old").publishedAt(older).build();
+        News newNews = News.builder().id(2L).title("new").publishedAt(newer).build();
         when(newsRepository.findAll()).thenReturn(List.of(oldNews, newNews));
         when(newsDiscussionPort.getDiscussionCounts(anyList())).thenReturn(Map.of(1L, 0L, 2L, 0L));
 
@@ -77,12 +76,12 @@ class NewsQueryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllNewsSummary places null createdAt last when LATEST")
-    void findAllNewsSummaryLatestWithNullCreatedAt() {
+    @DisplayName("findAllNewsSummary places null publishedAt last when LATEST")
+    void findAllNewsSummaryLatestWithNullPublishedAt() {
         LocalDateTime newer = LocalDateTime.now();
-        News nullCreatedAt = News.builder().id(1L).title("null-date").build();
-        News dated = News.builder().id(2L).title("dated").createdAt(newer).build();
-        when(newsRepository.findAll()).thenReturn(List.of(nullCreatedAt, dated));
+        News nullPublishedAt = News.builder().id(1L).title("null-date").build();
+        News dated = News.builder().id(2L).title("dated").publishedAt(newer).build();
+        when(newsRepository.findAll()).thenReturn(List.of(nullPublishedAt, dated));
         when(newsDiscussionPort.getDiscussionCounts(anyList())).thenReturn(Map.of(1L, 0L, 2L, 0L));
 
         List<NewsDto.Response> results = newsQueryService.findAllNewsSummary(NewsSortType.LATEST);
@@ -90,6 +89,27 @@ class NewsQueryServiceTest {
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getId()).isEqualTo(2L);
         assertThat(results.get(1).getId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("findAllNews uses DB-level publishedAt desc ordering when LATEST")
+    void findAllNewsLatestUsesDbOrdering() {
+        LocalDateTime newer = LocalDateTime.now();
+        LocalDateTime older = newer.minusHours(1);
+        News latest = News.builder().id(2L).title("latest").publishedAt(newer).build();
+        News old = News.builder().id(1L).title("old").publishedAt(older).build();
+        PageRequest pageable = PageRequest.of(0, 20);
+
+        when(newsRepository.findAllOrderByPublishedAtDescIdDesc(any()))
+                .thenReturn(new PageImpl<>(List.of(latest, old), pageable, 2));
+        when(newsDiscussionPort.getDiscussionCounts(anyList())).thenReturn(Map.of(1L, 0L, 2L, 0L));
+
+        var page = newsQueryService.findAllNews(NewsSortType.LATEST, pageable);
+
+        assertThat(page.getContent()).hasSize(2);
+        assertThat(page.getContent().get(0).getId()).isEqualTo(2L);
+        verify(newsRepository).findAllOrderByPublishedAtDescIdDesc(any());
+        verify(newsRepository, never()).findAll(any());
     }
 
     @Test

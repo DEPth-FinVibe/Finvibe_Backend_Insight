@@ -17,6 +17,9 @@ public interface NewsRepository {
 
     org.springframework.data.domain.Page<News> findAll(org.springframework.data.domain.Pageable pageable);
 
+    org.springframework.data.domain.Page<News> findAllOrderByPublishedAtDescIdDesc(
+            org.springframework.data.domain.Pageable pageable);
+
     List<News> findAllByCreatedAtAfter(LocalDateTime createdAfter);
 
     List<News> findAllByCategoryIdAndPublishedAtBetweenOrderByPublishedAtDesc(

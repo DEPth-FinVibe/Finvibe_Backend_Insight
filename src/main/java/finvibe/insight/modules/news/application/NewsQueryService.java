@@ -13,6 +13,7 @@ import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +42,13 @@ public class NewsQueryService implements NewsQueryUseCase {
 
     @Override
     public Page<NewsDto.Response> findAllNews(NewsSortType sortType, Pageable pageable) {
-        Page<News> newsPage = newsRepository.findAll(pageable);
+        Page<News> newsPage;
+        if (sortType == NewsSortType.LATEST) {
+            Pageable latestPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+            newsPage = newsRepository.findAllOrderByPublishedAtDescIdDesc(latestPageable);
+        } else {
+            newsPage = newsRepository.findAll(pageable);
+        }
         List<NewsDto.Response> responses = convertToResponseList(newsPage.getContent(), sortType);
         return new PageImpl<>(responses, pageable, newsPage.getTotalElements());
     }
@@ -64,9 +71,9 @@ public class NewsQueryService implements NewsQueryUseCase {
                             (News news) -> likeCountMap.getOrDefault(news.getId(), 0L))
                     .reversed();
         } else {
-            comparator = Comparator.comparing(
-                    News::getCreatedAt,
-                    Comparator.nullsLast(Comparator.reverseOrder()));
+            comparator = Comparator
+                    .comparing(News::getPublishedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(News::getId, Comparator.nullsLast(Comparator.reverseOrder()));
         }
 
         return newsList.stream()
