@@ -150,19 +150,55 @@ class NewsQueryServiceTest {
     }
 
     @Test
-    @DisplayName("findDailyTopKeywords aggregates and sorts keyword counts")
+    @DisplayName("findDailyTopKeywords aggregates from latest 30 news and fills fallback to 5")
     void findDailyTopKeywords() {
-        LocalDateTime now = LocalDateTime.now();
-        News first = News.builder().id(1L).createdAt(now.minusHours(2)).keyword(NewsKeyword.AI).build();
-        News second = News.builder().id(2L).createdAt(now.minusHours(3)).keyword(NewsKeyword.AI).build();
-        News third = News.builder().id(3L).createdAt(now.minusHours(4)).keyword(NewsKeyword.ETF).build();
-        when(newsRepository.findAllByCreatedAtAfter(any()))
-                .thenReturn(List.of(first, second, third));
+        News first = News.builder().id(1L).keyword(NewsKeyword.AI).build();
+        News second = News.builder().id(2L).keyword(NewsKeyword.AI).build();
+        News third = News.builder().id(3L).keyword(NewsKeyword.ETF).build();
+        when(newsRepository.findAllOrderByPublishedAtDescIdDesc(any()))
+                .thenReturn(new PageImpl<>(List.of(first, second, third), PageRequest.of(0, 30), 3));
 
         List<NewsDto.KeywordTrendResponse> results = newsQueryService.findDailyTopKeywords();
 
-        assertThat(results).isNotEmpty();
+        assertThat(results).hasSize(5);
         assertThat(results.get(0).getKeyword()).isEqualTo(NewsKeyword.AI);
         assertThat(results.get(0).getCount()).isEqualTo(2);
+        verify(newsRepository).findAllOrderByPublishedAtDescIdDesc(PageRequest.of(0, 30));
+    }
+
+    @Test
+    @DisplayName("findDailyTopKeywords returns fallback keywords when all keywords are null")
+    void findDailyTopKeywordsFallbackWhenNoKeywords() {
+        News first = News.builder().id(1L).keyword(null).build();
+        News second = News.builder().id(2L).keyword(null).build();
+        when(newsRepository.findAllOrderByPublishedAtDescIdDesc(any()))
+                .thenReturn(new PageImpl<>(List.of(first, second), PageRequest.of(0, 30), 2));
+
+        List<NewsDto.KeywordTrendResponse> results = newsQueryService.findDailyTopKeywords();
+
+        assertThat(results).hasSize(5);
+        assertThat(results.get(0).getKeyword()).isEqualTo(NewsKeyword.AI);
+        assertThat(results.get(0).getCount()).isEqualTo(0);
+        assertThat(results.get(1).getKeyword()).isEqualTo(NewsKeyword.ETF);
+        assertThat(results.get(2).getKeyword()).isEqualTo(NewsKeyword.SEMICONDUCTOR);
+        assertThat(results.get(3).getKeyword()).isEqualTo(NewsKeyword.INFLATION);
+        assertThat(results.get(4).getKeyword()).isEqualTo(NewsKeyword.RATE_CUT);
+    }
+
+    @Test
+    @DisplayName("findDailyTopKeywords sorts ties by keyword name")
+    void findDailyTopKeywordsTieBreakByKeywordName() {
+        News first = News.builder().id(1L).keyword(NewsKeyword.RATE_CUT).build();
+        News second = News.builder().id(2L).keyword(NewsKeyword.AI).build();
+        when(newsRepository.findAllOrderByPublishedAtDescIdDesc(any()))
+                .thenReturn(new PageImpl<>(List.of(first, second), PageRequest.of(0, 30), 2));
+
+        List<NewsDto.KeywordTrendResponse> results = newsQueryService.findDailyTopKeywords();
+
+        assertThat(results).hasSize(5);
+        assertThat(results.get(0).getKeyword()).isEqualTo(NewsKeyword.AI);
+        assertThat(results.get(0).getCount()).isEqualTo(1);
+        assertThat(results.get(1).getKeyword()).isEqualTo(NewsKeyword.RATE_CUT);
+        assertThat(results.get(1).getCount()).isEqualTo(1);
     }
 }

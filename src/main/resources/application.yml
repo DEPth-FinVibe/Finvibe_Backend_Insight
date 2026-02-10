@@ -10,7 +10,7 @@ spring:
 
 news:
   crawler:
-    max-items: 50
+    max-items: 30
     cron: "0 0 0 * * *"
 
 langchain4j:

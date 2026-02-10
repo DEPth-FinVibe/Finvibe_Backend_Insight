@@ -73,7 +73,7 @@ public class NewsController {
     @GetMapping("/keywords/trending")
     @Operation(
             summary = "일간 키워드 트렌드 조회",
-            description = "최근 1일 기준 상위 5개 키워드를 반환합니다."
+            description = "최신 뉴스 30건 기준 상위 5개 키워드를 반환하며, 부족하면 기본 키워드로 보정합니다."
     )
     public List<NewsDto.KeywordTrendResponse> getDailyKeywordTrends() {
         return newsQueryUseCase.findDailyTopKeywords();

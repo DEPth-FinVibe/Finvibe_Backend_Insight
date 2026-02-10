@@ -27,7 +27,7 @@ public class NaverNewsScraper implements NewsCrawler {
     private static final DateTimeFormatter PUBLISHED_AT_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
     private static final Pattern REDIRECT_PATTERN = Pattern.compile("top\\.location\\.href\\s*=\\s*['\"](.*?)['\"]");
 
-    @Value("${news.crawler.max-items:20}")
+    @Value("${news.crawler.max-items:30}")
     private int maxItems;
 
     @Override

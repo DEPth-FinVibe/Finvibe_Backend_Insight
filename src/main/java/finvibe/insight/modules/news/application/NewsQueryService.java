@@ -18,7 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,13 @@ public class NewsQueryService implements NewsQueryUseCase {
     private final NewsLikeRepository newsLikeRepository;
     private final NewsDiscussionPort newsDiscussionPort;
     private static final int DAILY_KEYWORD_LIMIT = 5;
+    private static final int RECENT_NEWS_WINDOW_SIZE = 30;
+    private static final List<NewsKeyword> KEYWORD_FALLBACK_ORDER = List.of(
+            NewsKeyword.AI,
+            NewsKeyword.ETF,
+            NewsKeyword.SEMICONDUCTOR,
+            NewsKeyword.INFLATION,
+            NewsKeyword.RATE_CUT);
 
     @Override
     public List<NewsDto.Response> findAllNewsSummary(NewsSortType sortType) {
@@ -105,17 +112,37 @@ public class NewsQueryService implements NewsQueryUseCase {
 
     @Override
     public List<NewsDto.KeywordTrendResponse> findDailyTopKeywords() {
-        LocalDateTime since = LocalDateTime.now().minusDays(1);
-        List<News> newsList = newsRepository.findAllByCreatedAtAfter(since);
+        Page<News> recentNewsPage = newsRepository.findAllOrderByPublishedAtDescIdDesc(
+                PageRequest.of(0, RECENT_NEWS_WINDOW_SIZE));
+        List<News> newsList = recentNewsPage.getContent();
 
-        return newsList.stream()
+        Map<NewsKeyword, Long> counts = newsList.stream()
                 .filter(news -> news.getKeyword() != null)
-                .collect(Collectors.groupingBy(News::getKeyword, Collectors.counting()))
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.<NewsKeyword, Long>comparingByValue().reversed())
+                .collect(Collectors.groupingBy(News::getKeyword, Collectors.counting()));
+
+        List<NewsDto.KeywordTrendResponse> responses = new ArrayList<>(counts.entrySet().stream()
+                .sorted(Map.Entry.<NewsKeyword, Long>comparingByValue()
+                        .reversed()
+                        .thenComparing(entry -> entry.getKey().name()))
                 .limit(DAILY_KEYWORD_LIMIT)
                 .map(entry -> new NewsDto.KeywordTrendResponse(entry.getKey(), entry.getValue()))
-                .toList();
+                .toList());
+
+        if (responses.size() >= DAILY_KEYWORD_LIMIT) {
+            return responses;
+        }
+
+        for (NewsKeyword fallbackKeyword : KEYWORD_FALLBACK_ORDER) {
+            boolean alreadyPresent = responses.stream()
+                    .anyMatch(response -> response.getKeyword() == fallbackKeyword);
+            if (!alreadyPresent) {
+                responses.add(new NewsDto.KeywordTrendResponse(fallbackKeyword, 0L));
+            }
+            if (responses.size() >= DAILY_KEYWORD_LIMIT) {
+                break;
+            }
+        }
+
+        return responses;
     }
 }
