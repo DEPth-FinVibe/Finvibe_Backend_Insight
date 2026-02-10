@@ -64,8 +64,8 @@ class NewsCommandServiceTest {
     @DisplayName("syncLatestNews saves only new titles and uses summarizer result")
     void syncLatestNewsSavesNewItems() {
         List<NewsCrawler.RawNewsData> rawData = List.of(
-                new NewsCrawler.RawNewsData("title-a", "content-a", LocalDateTime.now(), "NAVER"),
-                new NewsCrawler.RawNewsData("title-b", "content-b", LocalDateTime.now(), "NAVER")
+                new NewsCrawler.RawNewsData("title-a", "<p>content-a</p>", "content-a", LocalDateTime.now(), "NAVER"),
+                new NewsCrawler.RawNewsData("title-b", "<p>content-b</p>", "content-b", LocalDateTime.now(), "NAVER")
         );
         when(newsCrawler.fetchLatestRawNews()).thenReturn(rawData);
         when(newsRepository.existsByTitle("title-a")).thenReturn(true);
@@ -83,10 +83,13 @@ class NewsCommandServiceTest {
         verify(newsRepository).save(captor.capture());
         News saved = captor.getValue();
         assertThat(saved.getTitle()).isEqualTo("title-b");
+        assertThat(saved.getContent()).isEqualTo("<p>content-b</p>");
+        assertThat(saved.getContentText()).isEqualTo("content-b");
         assertThat(saved.getEconomicSignal()).isEqualTo(EconomicSignal.POSITIVE);
         assertThat(saved.getKeyword()).isEqualTo(NewsKeyword.AI);
         assertThat(saved.getCategoryId()).isEqualTo(categoryId);
         assertThat(saved.getCategoryName()).isEqualTo("테크");
+        verify(newsAiAnalyzer).analyze(contains("요약: content-b"), anyList());
     }
 
     @Test

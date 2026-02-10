@@ -15,6 +15,7 @@ import finvibe.insight.shared.domain.CategoryInfo;
 import finvibe.insight.shared.dto.MetricEventType;
 import finvibe.insight.shared.error.DomainException;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +56,8 @@ public class NewsCommandService implements NewsCommandUseCase {
                 continue;
             }
 
-            String analysisInput = "제목: " + rawData.title() + "\n요약: " + rawData.content();
+            String contentText = resolveAnalysisText(rawData);
+            String analysisInput = "제목: " + rawData.title() + "\n요약: " + contentText;
             NewsAiAnalyzer.AnalysisResult analysis = newsAiAnalyzer.analyze(analysisInput, categories);
             CategoryInfo category = resolveCategory(analysis.categoryId(), categories, defaultCategory);
 
@@ -68,7 +70,8 @@ public class NewsCommandService implements NewsCommandUseCase {
 
             News news = News.create(
                     rawData.title(),
-                    rawData.content(),
+                    rawData.contentHtml(),
+                    contentText,
                     analysis.summary(),
                     analysis.signal(),
                     analysis.keyword(),
@@ -137,5 +140,15 @@ public class NewsCommandService implements NewsCommandUseCase {
                 .filter(category -> category.id().equals(categoryId))
                 .findFirst()
                 .orElse(fallback);
+    }
+
+    private String resolveAnalysisText(NewsCrawler.RawNewsData rawData) {
+        if (rawData.contentText() != null && !rawData.contentText().isBlank()) {
+            return rawData.contentText();
+        }
+        if (rawData.contentHtml() != null && !rawData.contentHtml().isBlank()) {
+            return Jsoup.parse(rawData.contentHtml()).text();
+        }
+        return "";
     }
 }

@@ -64,8 +64,14 @@ public class NaverNewsScraper implements NewsCrawler {
                 // 상세 페이지 접속하여 본문/발행시간/신문사 가져오기
                 NewsDetail detail = fetchDetail(detailUrl);
 
-                if (detail.content() != null && !detail.content().isEmpty()) {
-                    newsList.add(new RawNewsData(title, detail.content(), detail.publishedAt(), detail.provider()));
+                if (detail.contentHtml() != null && !detail.contentHtml().isEmpty()
+                        && detail.contentText() != null && !detail.contentText().isEmpty()) {
+                    newsList.add(new RawNewsData(
+                            title,
+                            detail.contentHtml(),
+                            detail.contentText(),
+                            detail.publishedAt(),
+                            detail.provider()));
                 } else {
                     missingContentCount++;
                     log.warn("Empty content for url={}", detailUrl);
@@ -135,7 +141,7 @@ public class NaverNewsScraper implements NewsCrawler {
     private NewsDetail fetchDetail(String url, int depth) {
         if (depth > 3) {
             log.warn("Max redirect depth reached for url={}", url);
-            return new NewsDetail(null, null, null);
+            return new NewsDetail(null, null, null, null);
         }
 
         try {
@@ -155,21 +161,27 @@ public class NaverNewsScraper implements NewsCrawler {
                 LocalDateTime publishedAt = extractPublishedAt(doc);
                 String provider = extractProvider(doc);
 
-                // 불필요한 태그 제거 (기자 정보, 저작권 등)
-                contentElement.select(".link_news").remove();
-                contentElement.select(".date").remove();
-                contentElement.select("script, style").remove();
-                String text = contentElement.text().trim();
-                if (text.isBlank()) {
+                Element cleanedContent = sanitizeContent(contentElement);
+                String html = cleanedContent.html().trim();
+                String text = cleanedContent.text().trim();
+                if (html.isBlank() || text.isBlank()) {
                     log.warn("Content element found but empty. title={}", doc.title());
-                    return new NewsDetail(null, publishedAt, provider);
+                    return new NewsDetail(null, null, publishedAt, provider);
                 }
-                return new NewsDetail(text, publishedAt, provider);
+                return new NewsDetail(html, text, publishedAt, provider);
             }
         } catch (IOException e) {
             log.warn("Failed to fetch content from {}: {}", url, e.getMessage());
         }
-        return new NewsDetail(null, null, null);
+        return new NewsDetail(null, null, null, null);
+    }
+
+    private Element sanitizeContent(Element contentElement) {
+        Element clone = contentElement.clone();
+        clone.select(".link_news").remove();
+        clone.select(".date").remove();
+        clone.select("script, style").remove();
+        return clone;
     }
 
     private String extractScriptRedirect(Document doc) {
@@ -270,6 +282,6 @@ public class NaverNewsScraper implements NewsCrawler {
         return null;
     }
 
-    private record NewsDetail(String content, LocalDateTime publishedAt, String provider) {
+    private record NewsDetail(String contentHtml, String contentText, LocalDateTime publishedAt, String provider) {
     }
 }

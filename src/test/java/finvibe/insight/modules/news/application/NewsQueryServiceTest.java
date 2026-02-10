@@ -118,7 +118,8 @@ class NewsQueryServiceTest {
         News news = News.builder()
                 .id(1L)
                 .title("title")
-                .content("content")
+                .content("<p>content</p>")
+                .contentText("content")
                 .analysis("analysis")
                 .economicSignal(EconomicSignal.NEUTRAL)
                 .keyword(NewsKeyword.ETF)
@@ -130,6 +131,7 @@ class NewsQueryServiceTest {
         NewsDto.DetailResponse response = newsQueryService.findNewsById(1L);
 
         assertThat(response.getId()).isEqualTo(1L);
+        assertThat(response.getContent()).isEqualTo("<p>content</p>");
         assertThat(response.getLikeCount()).isEqualTo(7L);
         assertThat(response.getDiscussionCount()).isEqualTo(5L);
     }

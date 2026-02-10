@@ -14,6 +14,7 @@ class NewsTest {
     void discussionCountBounds() {
         News news = News.create(
                 "title",
+                "<p>content</p>",
                 "content",
                 "analysis",
                 EconomicSignal.NEUTRAL,
@@ -38,6 +39,7 @@ class NewsTest {
     void syncDiscussionCount() {
         News news = News.create(
                 "title",
+                "<p>content</p>",
                 "content",
                 "analysis",
                 EconomicSignal.NEUTRAL,

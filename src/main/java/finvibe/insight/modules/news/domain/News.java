@@ -40,6 +40,10 @@ public class News extends TimeStampedBaseEntity {
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
+    private String contentText;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String analysis;
 
     @Enumerated(EnumType.STRING)
@@ -58,12 +62,13 @@ public class News extends TimeStampedBaseEntity {
 
     private String provider;
 
-    public static News create(String title, String content, String analysis,
+    public static News create(String title, String content, String contentText, String analysis,
             EconomicSignal economicSignal, NewsKeyword keyword, Long categoryId, String categoryName,
             LocalDateTime publishedAt, String provider) {
         return News.builder()
                 .title(title)
                 .content(content)
+                .contentText(contentText)
                 .analysis(analysis)
                 .economicSignal(economicSignal)
                 .keyword(keyword)
