@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface DiscussionCommentJpaRepository extends JpaRepository<DiscussionComment, Long> {
     List<DiscussionComment> findAllByDiscussionIdOrderByCreatedAtAsc(Long discussionId);
+
+    void deleteByDiscussionId(Long discussionId);
 }

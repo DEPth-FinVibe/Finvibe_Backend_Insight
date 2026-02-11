@@ -69,6 +69,7 @@ public class CommentCommandService implements CommentCommandUseCase {
             throw new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND);
         }
 
+        discussionCommentLikeRepository.deleteByCommentId(commentId);
         discussionCommentRepository.delete(comment);
     }
 

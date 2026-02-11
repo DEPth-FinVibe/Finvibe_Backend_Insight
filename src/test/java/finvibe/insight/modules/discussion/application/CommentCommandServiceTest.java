@@ -97,6 +97,7 @@ class CommentCommandServiceTest {
 
         commentCommandService.deleteComment(1L, userId);
 
+        verify(discussionCommentLikeRepository).deleteByCommentId(1L);
         verify(discussionCommentRepository).delete(comment);
     }
 

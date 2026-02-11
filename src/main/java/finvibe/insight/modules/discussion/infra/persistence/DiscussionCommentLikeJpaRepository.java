@@ -9,5 +9,9 @@ import java.util.UUID;
 public interface DiscussionCommentLikeJpaRepository extends JpaRepository<DiscussionCommentLike, Long> {
     long countByCommentId(Long commentId);
 
+    void deleteByCommentId(Long commentId);
+
+    void deleteByCommentDiscussionId(Long discussionId);
+
     Optional<DiscussionCommentLike> findByCommentIdAndUserId(Long commentId, UUID userId);
 }

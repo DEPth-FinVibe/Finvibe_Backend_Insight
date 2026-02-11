@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface DiscussionCommentRepository {
     List<DiscussionComment> findAllByDiscussionIdOrderByCreatedAtAsc(Long discussionId);
 
+    void deleteByDiscussionId(Long discussionId);
+
     DiscussionComment save(DiscussionComment comment);
 
     Optional<DiscussionComment> findById(Long id);

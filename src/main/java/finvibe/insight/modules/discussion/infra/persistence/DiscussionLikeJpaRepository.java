@@ -9,5 +9,7 @@ import java.util.UUID;
 public interface DiscussionLikeJpaRepository extends JpaRepository<DiscussionLike, Long> {
     long countByDiscussionId(Long discussionId);
 
+    void deleteByDiscussionId(Long discussionId);
+
     Optional<DiscussionLike> findByDiscussionIdAndUserId(Long discussionId, UUID userId);
 }

@@ -79,7 +79,9 @@ public class DiscussionCommandService implements DiscussionCommandUseCase {
             throw new DomainException(DiscussionErrorCode.DISCUSSION_NOT_FOUND);
         }
 
-        // cascade 설정으로 댓글도 자동 삭제됨
+        discussionCommentLikeRepository.deleteByDiscussionId(discussionId);
+        discussionLikeRepository.deleteByDiscussionId(discussionId);
+        discussionCommentRepository.deleteByDiscussionId(discussionId);
         discussionRepository.delete(discussion);
 
         Long newsId = discussion.getNewsId();

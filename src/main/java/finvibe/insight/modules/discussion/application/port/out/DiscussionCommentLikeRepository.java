@@ -8,6 +8,10 @@ import java.util.UUID;
 public interface DiscussionCommentLikeRepository {
     long countByCommentId(Long commentId);
 
+    void deleteByCommentId(Long commentId);
+
+    void deleteByDiscussionId(Long discussionId);
+
     DiscussionCommentLike save(DiscussionCommentLike like);
 
     void delete(DiscussionCommentLike like);

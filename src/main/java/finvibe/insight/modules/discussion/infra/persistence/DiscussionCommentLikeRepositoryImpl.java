@@ -20,6 +20,16 @@ public class DiscussionCommentLikeRepositoryImpl implements DiscussionCommentLik
     }
 
     @Override
+    public void deleteByCommentId(Long commentId) {
+        discussionCommentLikeJpaRepository.deleteByCommentId(commentId);
+    }
+
+    @Override
+    public void deleteByDiscussionId(Long discussionId) {
+        discussionCommentLikeJpaRepository.deleteByCommentDiscussionId(discussionId);
+    }
+
+    @Override
     public DiscussionCommentLike save(DiscussionCommentLike like) {
         return discussionCommentLikeJpaRepository.save(like);
     }

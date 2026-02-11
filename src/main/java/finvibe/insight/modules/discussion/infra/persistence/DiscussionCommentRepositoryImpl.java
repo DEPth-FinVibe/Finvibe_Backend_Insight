@@ -20,6 +20,11 @@ public class DiscussionCommentRepositoryImpl implements DiscussionCommentReposit
     }
 
     @Override
+    public void deleteByDiscussionId(Long discussionId) {
+        jpaRepository.deleteByDiscussionId(discussionId);
+    }
+
+    @Override
     public DiscussionComment save(DiscussionComment comment) {
         return jpaRepository.save(comment);
     }

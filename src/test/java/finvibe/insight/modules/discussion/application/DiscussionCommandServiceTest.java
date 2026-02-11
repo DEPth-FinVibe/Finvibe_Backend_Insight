@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -122,7 +124,15 @@ class DiscussionCommandServiceTest {
 
         discussionCommandService.deleteDiscussion(1L, userId);
 
-        verify(discussionRepository).delete(discussion);
+        InOrder inOrder = inOrder(
+                discussionCommentLikeRepository,
+                discussionLikeRepository,
+                discussionCommentRepository,
+                discussionRepository);
+        inOrder.verify(discussionCommentLikeRepository).deleteByDiscussionId(1L);
+        inOrder.verify(discussionLikeRepository).deleteByDiscussionId(1L);
+        inOrder.verify(discussionCommentRepository).deleteByDiscussionId(1L);
+        inOrder.verify(discussionRepository).delete(discussion);
         verify(discussionEventPort).publishDeleted(3L);
     }
 
@@ -135,6 +145,9 @@ class DiscussionCommandServiceTest {
 
         discussionCommandService.deleteDiscussion(1L, userId);
 
+        verify(discussionCommentLikeRepository).deleteByDiscussionId(1L);
+        verify(discussionLikeRepository).deleteByDiscussionId(1L);
+        verify(discussionCommentRepository).deleteByDiscussionId(1L);
         verify(discussionRepository).delete(discussion);
         verify(discussionEventPort, never()).publishDeleted(any());
     }
